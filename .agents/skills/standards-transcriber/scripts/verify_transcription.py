@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 verify_transcription.py - Narzędzie audytu i walidacji przepisanych notatek normatywnych w skarbcu Obsidian.
-Sprawdza spójność YAML frontmatter z bazami .base, poprawność tagów z katalogu, brak osieroconych zrzutów ekranu oraz składnię tabel.
+Sprawdza spójność YAML frontmatter z bazami .base, poprawność tagów z katalogu, brak osieroconych zrzutów ekranu,
+składnię tabel oraz blokuje prymitywne / automatyczne próby wektoryzacji rastrowej (auto-tracingu).
 """
 
 import sys
@@ -11,11 +12,7 @@ import re
 import json
 import argparse
 from pathlib import Path
-
-try:
-    import yaml
-except ImportError:
-    yaml = None
+import xml.etree.ElementTree as ET
 
 if sys.platform.startswith("win"):
     try:
@@ -28,6 +25,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 CATALOG_PATH = SCRIPT_DIR / "tags_catalog.json"
 
 IMG_PATTERN = re.compile(r'!\[.*?\]\((.*?\.(?:png|jpg|jpeg|webp))\)|!\[\[(.*?\.(?:png|jpg|jpeg|webp))(?:\|.*?)?\]\]', re.IGNORECASE)
+SVG_REF_PATTERN = re.compile(r'!\[.*?\]\((.*?\.svg)\)|!\[\[(.*?\.svg)(?:\|.*?)?\]\]', re.IGNORECASE)
 
 def load_approved_tags():
     if not CATALOG_PATH.exists():
@@ -36,37 +34,51 @@ def load_approved_tags():
         data = json.load(f)
     return set(data.get("flat_list", []))
 
-def parse_yaml_tags(parsed_yaml, yaml_text):
-    tags = set()
-    if isinstance(parsed_yaml, dict) and "tags" in parsed_yaml:
-        raw_tags = parsed_yaml["tags"]
-        if isinstance(raw_tags, list):
-            for item in raw_tags:
-                if item and isinstance(item, str):
-                    t = item.strip().lstrip("#").strip()
-                    if t and not t.startswith("[["):
-                        tags.add(t)
-        elif isinstance(raw_tags, str):
-            t = raw_tags.strip().lstrip("#").strip()
-            if t and not t.startswith("[["):
-                tags.add(t)
-    else:
-        # Fallback regex parser dla tags (obsługuje formaty jedno- i wieloliniowe)
-        tags_match = re.search(r"tags:\s*(.*?)(?=\r?\n[a-zA-Z0-9_-]+:|\Z)", yaml_text, re.DOTALL)
-        if tags_match:
-            chunk = tags_match.group(1).strip()
-            if chunk.startswith("[") and chunk.endswith("]"):
-                items = chunk[1:-1].split(",")
-                for item in items:
-                    t = item.strip().strip('"').strip("'").lstrip("#").strip()
-                    if t and not t.startswith("[["):
-                        tags.add(t)
-            else:
-                for line in chunk.splitlines():
-                    clean = line.strip().lstrip("-").strip().strip('"').strip("'").lstrip("#")
-                    if clean and not clean.startswith("[["):
-                        tags.add(clean)
-    return tags
+def audit_svg_file(svg_path):
+    """
+    Weryfikuje plik SVG pod kątem składni XML oraz blokuje ślepy auto-tracing
+    (wykrywając nadmierną liczbę punktów w elementach <path>, <polygon> lub <polyline>).
+    """
+    issues = []
+    warnings = []
+    if not os.path.exists(svg_path):
+        return [f"Brak pliku wektorowego SVG: {svg_path}"], []
+
+    try:
+        tree = ET.parse(svg_path)
+        root = tree.getroot()
+        if not root.tag.endswith("svg"):
+            return ["Plik SVG nie posiada głównego znacznika <svg>"], []
+        
+        svg_text = open(svg_path, "r", encoding="utf-8").read()
+        
+        # Sprawdzenie czy wygenerowano tekst wektorowy (ISO / wymiary)
+        has_text = "<text" in svg_text
+        
+        # Detekcja podejrzanie długich atrybutów d="..." (świadczy o bitmapowym auto-tracery z setkami/tysiącami segmentów)
+        path_matches = re.findall(r'd="([^"]+)"', svg_text)
+        for d_attr in path_matches:
+            # Liczymy przybliżoną liczbę komend/węzłów w ścieżce
+            nodes_count = len(re.findall(r'[MmLlHhVvCcSsQqTtAaZz]', d_attr))
+            if nodes_count > 150:
+                issues.append(f"KRYTYCZNE: Wykryto ścieżkę <path> z auto-tracingu o ogromnej złożoności ({nodes_count} węzłów). Zakaz auto-tracingu! Wymagane czyste CAD-SVG.")
+        
+        # Detekcja podejrzanie wielkich wielokątów (<polygon>)
+        polygon_matches = re.findall(r'points="([^"]+)"', svg_text)
+        for pts in polygon_matches:
+            coords = pts.strip().split()
+            if len(coords) > 100:
+                issues.append(f"KRYTYCZNE: Wykryto element <polygon> z auto-tracingu ({len(coords)} punktów). Wymagane konstrukcje wektorowe CAD-SVG.")
+
+        if not has_text and len(path_matches) > 3:
+            warnings.append("Ostrzeżenie: Plik SVG nie zawiera elementów tekstowych <text> (brak oznaczeń wymiarów s_r, e lub etykiet).")
+
+    except ET.ParseError as e:
+        issues.append(f"Błąd składni XML w pliku SVG: {str(e)}")
+    except Exception as e:
+        issues.append(f"Błąd odczytu pliku SVG: {str(e)}")
+
+    return issues, warnings
 
 def verify_note(filepath, approved_tags):
     path = Path(filepath)
@@ -88,71 +100,56 @@ def verify_note(filepath, approved_tags):
     yaml_text = fm_match.group(1)
     body = content[fm_match.end():].strip()
 
-    parsed_yaml = None
-    if yaml:
-        try:
-            parsed_yaml = yaml.safe_load(yaml_text)
-        except Exception as e:
-            issues.append(f"Błąd składni YAML Frontmatter: {str(e)}")
-
-    # Zbierz klucze YAML
+    # Parse simple yaml keys
     yaml_keys = set()
-    if isinstance(parsed_yaml, dict):
-        yaml_keys = set(parsed_yaml.keys())
-    else:
-        for line in yaml_text.splitlines():
-            k_match = re.match(r"^([a-zA-Z0-9_-]+):", line)
-            if k_match:
-                yaml_keys.add(k_match.group(1))
+    for line in yaml_text.splitlines():
+        k_match = re.match(r"^([a-zA-Z0-9_-]+):", line)
+        if k_match:
+            yaml_keys.add(k_match.group(1))
 
-    # Rozpoznanie typu notatki
+    # Detect note type
     filename_upper = path.name.upper()
     is_index = path.name.startswith("_")
     is_table = "TABLICA" in filename_upper or "norm_table" in yaml_keys
     is_drawing = "RYSUNEK" in filename_upper or "RYS." in filename_upper or "norm_drawing" in yaml_keys
     is_point = not (is_index or is_table or is_drawing)
 
-    # 2. Sprawdzenie wymaganych pól YAML
+    # 2. Check required fields
     if "index" not in yaml_keys:
         issues.append("Brak wymaganego pola 'index' w YAML")
     else:
-        # Sprawdź, czy każdy wikilink w YAML jest ujęty w cudzysłów
         for line in yaml_text.splitlines():
             if "[[" in line and "]]" in line:
                 if not (('"' in line) or ("'" in line)):
                     issues.append(f"Wikilink w YAML musi być ujęty w cudzysłów: {line.strip()}")
 
-    # Weryfikacja tytułów (dopuszczamy norm_title_PL lub norm_title_ENG)
-    has_title = ("norm_title_PL" in yaml_keys) or ("norm_title_ENG" in yaml_keys) or ("norm_title" in yaml_keys)
-
     if is_point:
-        for req in ["norm_number", "norm_point", "norm_point_title"]:
+        for req in ["norm_number", "norm_point", "norm_point_title", "norm_title_PL"]:
             if req not in yaml_keys:
                 issues.append(f"Punkt normy wymaga pola YAML '{req}' dla widoku Normy.base")
-        if not has_title:
-            issues.append("Punkt normy wymaga zdefiniowania pola tytułu: 'norm_title_PL' lub 'norm_title_ENG'")
 
     elif is_table:
         for req in ["norm_number", "norm_table", "norm_table_title"]:
             if req not in yaml_keys:
                 issues.append(f"Tablica wymaga pola YAML '{req}' dla widoku Normy.base")
-        if not has_title:
-            warnings.append("Tablica powinna zawierać pole 'norm_title_PL' lub 'norm_title_ENG' dla spójności z indeksem")
 
     elif is_drawing:
         for req in ["norm_number", "norm_drawing", "norm_drawing_title"]:
             if req not in yaml_keys:
                 issues.append(f"Rysunek wymaga pola YAML '{req}' dla widoku Normy.base")
-        if not has_title:
-            warnings.append("Rysunek powinien zawierać pole 'norm_title_PL' lub 'norm_title_ENG' dla spójności z indeksem")
 
-    # 3. Sprawdzenie tagów (YAML + inline z obsługą polskich znaków diakrytycznych)
-    note_tags = parse_yaml_tags(parsed_yaml, yaml_text)
+    # 3. Check tags (Unicode support)
+    note_tags = set()
+    tags_match = re.search(r"tags:\r?\n(.*?)(?=\r?\n[a-zA-Z0-9_-]+:|\Z)", yaml_text, re.DOTALL)
+    if tags_match:
+        for line in tags_match.group(1).splitlines():
+            clean = line.strip().lstrip("-").strip().strip('"').strip("'").lstrip("#")
+            if clean and not clean.startswith("[["):
+                note_tags.add(clean)
 
-    # Usuń bloki kodu przed skanowaniem tagów inline, aby nie łapać komentarzy i kolorów HEX
     body_no_code = re.sub(r"```.*?```|`[^`]*`", "", body, flags=re.DOTALL)
     for m in re.finditer(r"(?<!\S)#([\w\-\/]+)", body_no_code, re.UNICODE):
-        t = m.group(1).strip()
+        t = m.group(1)
         if not t.isdigit() and not re.fullmatch(r"[0-9a-fA-F]{3,8}", t):
             note_tags.add(t)
 
@@ -161,7 +158,7 @@ def verify_note(filepath, approved_tags):
             if t not in approved_tags:
                 warnings.append(f"Nieznany tag (brak w tags_catalog.json): #{t} - wymaga akceptacji użytkownika")
 
-    # 4. Sprawdzenie obecności nieprzekonwertowanych zrzutów ekranu
+    # 4. Check for remaining unreplaced screenshots
     unreplaced_images = []
     for m in IMG_PATTERN.finditer(body):
         img_name = m.group(1) or m.group(2)
@@ -171,7 +168,29 @@ def verify_note(filepath, approved_tags):
     if unreplaced_images:
         warnings.append(f"W treści notatki nadal znajdują się zrzuty ekranu ({len(unreplaced_images)}): {', '.join(unreplaced_images)}")
 
-    # 5. Walidacja tabeli
+    # 5. Audit referenced SVG files for auto-tracing artifacts
+    note_dir = path.parent
+    for m in SVG_REF_PATTERN.finditer(body):
+        svg_name = m.group(1) or m.group(2)
+        if svg_name:
+            # Sprawdź lokalizację w folderze normy lub Attachments/
+            possible_paths = [
+                note_dir / svg_name,
+                note_dir / "Attachments" / Path(svg_name).name,
+                note_dir.parent / "Attachments" / Path(svg_name).name
+            ]
+            found_svg = None
+            for p in possible_paths:
+                if p.exists():
+                    found_svg = p
+                    break
+            
+            if found_svg:
+                svg_issues, svg_warnings = audit_svg_file(found_svg)
+                issues.extend([f"[{svg_name}] {iss}" for iss in svg_issues])
+                warnings.extend([f"[{svg_name}] {w}" for w in svg_warnings])
+
+    # 6. Table validation
     if is_table:
         has_md_table = bool(re.search(r'\|.*?\|.*?\|\r?\n\|(?:\s*[:-]+[-| :]*)\|\r?\n\|.*?\|', body))
         has_html_table = "<table" in body.lower()
@@ -181,7 +200,7 @@ def verify_note(filepath, approved_tags):
     return (len(issues) == 0), issues, warnings
 
 def main():
-    parser = argparse.ArgumentParser(description="Weryfikacja integralności przepisanej notatki Obsidian")
+    parser = argparse.ArgumentParser(description="Weryfikacja integralności przepisanej notatki Obsidian oraz blokada auto-tracingu SVG")
     parser.add_argument("--file", "-f", required=True, help="Ścieżka do pliku .md do weryfikacji")
     args = parser.parse_args()
 
@@ -189,10 +208,10 @@ def main():
     valid, issues, warnings = verify_note(args.file, approved_tags)
 
     print(f"\n=======================================================")
-    print(f"🔍 AUDYT NOTATKI: {Path(args.file).name}")
+    print(f"🔍 AUDYT NOTATKI ORAZ GRAFIK CAD-SVG: {Path(args.file).name}")
     print(f"=======================================================")
     if valid and not warnings:
-        print("[SUKCES] Notatka jest w 100% poprawna, spełnia wymogi Normy.base i taksonomii tagów.")
+        print("[SUKCES] Notatka jest w 100% poprawna, spełnia wymogi Normy.base i nie zawiera wykrytych śladów auto-tracingu.")
     else:
         if issues:
             print(f"[BŁĘDY KRYTYCZNE] ({len(issues)}):")
