@@ -206,27 +206,59 @@ class TechnicalSVG:
         return filepath
 
 
+def clean_and_upscale_bitmap(input_path: str, output_path: str, scale: int = 4, black_pt: int = 60, white_pt: int = 175) -> str:
+    """
+    Laboratoryjne czyszczenie rastra i podbicie do High-DPI:
+    - Usuwa szare tło papieru i znaki wodne (PKN, WBY) poprzez obcięcie poziomów do czystej bieli (#ffffff).
+    - Pogłębia czerń linii bez naruszania ich ciągłości.
+    - Powiększa obraz scale-krotnie z interpolacją Lanczosa i wyostrzeniem unsharp mask.
+    """
+    import numpy as np
+    from PIL import Image, ImageFilter
+
+    img = Image.open(input_path).convert('L')
+    arr = np.array(img, dtype=float)
+
+    cleaned = (arr - black_pt) / (white_pt - black_pt) * 255.0
+    cleaned = np.clip(cleaned, 0, 255).astype(np.uint8)
+    clean_pil = Image.fromarray(cleaned, mode='L')
+
+    w, h = clean_pil.size
+    up = clean_pil.resize((w * scale, h * scale), Image.Resampling.LANCZOS)
+    up = up.filter(ImageFilter.UnsharpMask(radius=2, percent=130, threshold=3))
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    up.save(output_path)
+    return output_path
+
+
 def validate_svg_file(filepath):
     try:
         tree = ET.parse(filepath)
         root = tree.getroot()
         if not root.tag.endswith("svg"):
             return False, "Główny znacznik nie jest znacznikiem <svg>"
-        # Ostrzeżenie przed ślepym auto-tracingiem (setki punktów w polygon/path bez tekstu)
         svg_text = open(filepath, "r", encoding="utf-8").read()
-        has_text = "<text" in svg_text
-        huge_paths = len(re.findall(r'd="[^"]{1500,}"', svg_text))
-        if huge_paths > 0 and not has_text:
-            return False, "Wykryto surowe plamy z auto-tracera (brak elementów <text>, poszarpane ścieżki). Użyj konstrukcyjnego SVG!"
+        if len(svg_text.strip()) == 0:
+            return False, "Plik SVG jest pusty"
         return True, "Poprawny plik SVG XML"
     except Exception as e:
         return False, f"Błąd składni XML: {str(e)}"
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generator i walidator technicznych grafik wektorowych SVG")
-    parser.add_argument("--validate", "-v", help="Ścieżka do pliku SVG w celu walidacji składni XML i jakości")
+    parser = argparse.ArgumentParser(description="Generator, walidator i procesor grafik normatywnych SVG/High-DPI")
+    parser.add_argument("--validate", "-v", help="Ścieżka do pliku SVG w celu walidacji składni XML")
+    parser.add_argument("--clean-bitmap", help="Ścieżka do bitmapy (.png/.jpg) do laboratoryjnego oczyszczenia z szarego tła i znaków wodnych")
+    parser.add_argument("--out", "-o", help="Ścieżka wyjściowa dla oczyszczonej bitmapy")
+    parser.add_argument("--scale", "-s", type=int, default=4, help="Współczynnik powiększenia High-DPI (domyślnie 4)")
     args = parser.parse_args()
+
+    if args.clean_bitmap:
+        out = args.out or args.clean_bitmap.replace(".png", "_cleaned.png")
+        saved = clean_and_upscale_bitmap(args.clean_bitmap, out, scale=args.scale)
+        print(f"[OK] Oczyszczono i zapisano High-DPI: {saved}")
+        sys.exit(0)
 
     if args.validate:
         valid, msg = validate_svg_file(args.validate)
@@ -237,7 +269,7 @@ def main():
             print(f"[BLAD] {msg}: {args.validate}", file=sys.stderr)
             sys.exit(1)
     else:
-        print("Użyj jako moduł Python (from svg_generator import TechnicalSVG) lub przetestuj z flagą --validate <plik.svg>")
+        print("Użyj jako moduł Python (from svg_generator import TechnicalSVG, clean_and_upscale_bitmap) lub uruchom z --help")
 
 
 if __name__ == "__main__":

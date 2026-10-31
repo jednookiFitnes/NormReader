@@ -61,17 +61,25 @@ Dla wybranej notatki punktu:
 
 ### Krok 3: Konwersja tabel
 1. **Tabele standardowe i parametryczne:**
-   - Twórz w czystym formacie Markdown z wyrównaniem kolumn.
+   - Twórz w czystym formacie Markdown (`| ... |`) z jawnym wyrównaniem kolumn.
+   - **Kompatybilność z Pandoc GUI:** Pandoc w trybie kompilacji do PDF (`pdflatex`) usuwa znaczniki surowego HTML `<table>`. Wszystkie tabele normatywne twórz w formacie Markdown.
    - Indeksy i wzory matematyczne formatuj w KaTeX (np. `$PFH_D$`, `$\ge 10^{-5}$`).
    - Załamania linii wewnątrz komórek realizuj przez `<br>`.
 2. **Tabele z piktogramami / miniaturami:**
-   - Każda miniatura/ilustracja wewnątrz tabeli musi zostać przerysowana do wektora `.svg` z zachowaniem procedury **Stop & Review** (prezentacja oryginału i wygenerowanego wektora do akceptacji użytkownika).
-   - W komórce tabeli osadzaj wygenerowany wektor: `![[Nazwa_Miniatury.svg|90]]`.
+   - Zastosuj **złotą zasadę rycin**: *„Grafika ma być taka sama tylko z wyższą rozdzielczością, bez szarego pod spodem i z czytelnymi opisami”*.
+   - Kategoryczny zakaz generowania grafiki przez modele AI (diffusion/Imagen) — halucynują one wymiary i geometrię.
+   - Oczyść raster ze skanu (odcięcie szarości i znaków wodnych PKN/WBY do czystej bieli `#ffffff`, powiększenie 4x High-DPI z wyostrzeniem krawędzi).
+   - W komórce tabeli osadzaj oczyszczony wektor lub High-DPI raster: `![[Tablica X - Nazwa.svg\|90]]` z zachowaniem procedury **Stop & Review**.
 3. **Tabele skomplikowane (ze scalonymi nagłówkami lub komórkami `colspan`/`rowspan`):**
-   - Stosuj **czysty kod HTML `<table>`** (`<thead>`, `<tbody>`, `<tr>`, `<th colspan="...">`, `<td rowspan="...">`). Obsidian renderuje je bezbłędnie.
+   - Wyłącznie gdy nie da się zachować logiki w Markdown, stosuj **czysty kod HTML `<table>`** (`<thead>`, `<tbody>`, `<tr>`, `<th colspan="...">`, `<td rowspan="...">`), pamiętając o ograniczeniach eksportu PDF Pandoc.
 
-### Krok 4: Przerysowanie rysunku i pętla Stop & Review
-1. Wygeneruj kod wektorowy SVG (techniczna estetyka inżynierska, czarne linie 1.5–2px, font sans-serif, czytelność w trybie ciemnym i jasnym).
+### Krok 4: Przerysowanie / rekonstrukcja rysunku i pętla Stop & Review
+1. **Wybór metody rekonstrukcji:**
+   - **Ryciny konstrukcyjne / schematy geometryczne (np. Rysunek 2):** Generuj czysty kod wektorowy CAD-SVG (techniczna estetyka inżynierska, czarne linie 1.5–2px, font sans-serif, czytelność w trybie ciemnym i jasnym, wzorzec `<pattern id="hatch-45">`).
+   - **Szkice anatomiczne / miniatury tabel / ryciny ze skanów:** Zastosuj procedurę laboratoryjnej rekonstrukcji:
+     1. Usunięcie tła i znaków wodnych (white-point ramp do `#ffffff`).
+     2. Skalowanie 4x Lanczos + UnsharpMask.
+     3. Zapis do High-DPI PNG lub wektoryzacja binarnego oczyszczonego obrazu przez VTracer (spline mode).
 2. **Bezpieczeństwo XML:** Upewnij się, że znaki nierówności (`<`, `>`) oraz ampersand (`&`) są poprawnie escapowane (`&lt;`, `&gt;`, `&amp;`), korzystając z metody `add_text()` z `svg_generator.py`.
 3. Sprawdź poprawność XML:
    ```powershell

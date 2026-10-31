@@ -166,42 +166,37 @@ b Odwołanie do niniejszej części ISO 13849
 
 1. **Standard Parametric Tables**:
    - Use clean GFM Markdown tables with explicit column alignment (`:---:`, `:---`, `---:`).
+   - **PANDOC COMPATIBILITY WARNING**: Do NOT use raw HTML `<table>` for standard tables unless absolutely necessary for complex cell spanning (`colspan`/`rowspan`). Pandoc GUI in PDF engine (`pdflatex` / `xelatex`) drops raw HTML table tags, flattening cells into unformatted text.
    - Format mathematical variables, subscripts, inequalities, and exponents in LaTeX (`$PFH_D$`, `$MTTF_D$`, `$DC_{avg}$`, `$10^{-5}$`, `$T_{10D}$`).
    - Use `<br>` for multi-line cells. Escape literal pipes inside wikilinks in table cells (`\|`).
 2. **Tables with Pictograms / Miniatures**:
-   - Embed vector icons directly inside cells: `![[Piktogram_Zakaz.svg|50]]<br>**Zakaz**`.
+   - Embed vector icons or High-DPI cleaned images directly inside cells: `![[Tablica 4 - Czubek palca.svg\|90]]` or `![[Piktogram_Zakaz.svg\|50]]<br>**Zakaz**`.
 3. **Complex Tables (Multi-Row Headers / Merged Cells)**:
-   - Whenever a table contains `colspan` or `rowspan` merges, use **clean semantic HTML `<table>`** (`<thead>`, `<tbody>`, `<tr>`, `<th colspan="...">`, `<td rowspan="...">`). Never flatten merged normative tables if doing so alters their logical structure.
+   - When a table contains complex `colspan` or `rowspan` merges that cannot be expressed in Markdown, use **clean semantic HTML `<table>`** (`<thead>`, `<tbody>`, `<tr>`, `<th colspan="...">`, `<td rowspan="...">`), but be aware of Pandoc PDF export limitations.
 
 ---
 
-## 5. Multimodal LLM SVG Generation (`Stop & Review` Protocol)
+## 5. Graphics, Miniatures & Vector Standards (`Stop & Review` Protocol)
 
-Every technical figure, block diagram, or dimensional safety illustration must be authored directly by the **Multimodal LLM acting as a CAD Drafter** under strict visual verification:
+Every technical figure, block diagram, or table thumbnail must adhere to the following principles:
 
-1. **STRICT BAN on Blind Auto-Tracing AND Generic Script Templates**:
-   - **NEVER** run automatic bitmap contour tracers (`potrace`, `cv2.findContours`, `approxPolyDP`) on technical drawings—they merge hatching and lines into unreadable black webs.
-   - **NEVER** use lazy, repetitive Python script geometry (e.g., drawing the same generic cylinder/sausage shape or stick-figure circle for a finger, a 5-finger hand, and an arm). Every illustration must be individually drafted by the LLM from visual inspection of the source image.
-2. **PDF Vector Extraction First (When Source PDF Exists)**:
+1. **STRICT BAN on AI Image Generation (Imagen / Gemini Image-Gen)**:
+   - **NEVER** use generative diffusion models (`image-generator`) to hallucinate or invent new drawings for technical standards. They alter geometry, distort anatomy, and hallucinate dimensional principles (e.g., placing dimension arrows across walls instead of measuring reach depth).
+2. **Golden Rule for Drawings & Miniatures**:
+   - *"Grafika ma być taka sama tylko z wyższą rozdzielczością, bez szarego pod spodem i z czytelnymi opisami."*
+3. **Approved Reconstruction Workflow (Cleaned High-DPI & Clean Vector)**:
+   - **Step A — Background Cleaning & Watermark Removal**: Map scanner gray background, paper texture, and watermarks (e.g. PKN, WBY) to pure white `#ffffff` via white-point thresholding/curve clipping without eroding black ink strokes.
+   - **Step B — High-DPI Upscaling (4x)**: Upscale the cleaned bitmap using high-order Lanczos/Bicubic resampling with edge sharpening to ensure crisp rendering on 4K/Retina displays and in PDF prints.
+   - **Step C — Format Selection**: Save either as High-DPI PNG or as a clean spline SVG (via VTracer on the cleaned binary bitmap).
+   - **Step D — Mechanical / Block Diagrams (CAD-SVG)**: For purely geometric, dimensional schematics (such as Rysunek 2), Multimodal LLM Vision-to-CAD authoring with 3 layers (canvas/hatch, contours, ISO 129 dimensions) remains valid.
+4. **Zero Legend Duplication**:
+   - When labels, dimension definitions ($a, b, c$), and legend items ($1, 2, 3$) are already legibly present inside the figure or drawing card, **do NOT duplicate them as text underneath the image**.
+5. **PDF Vector Extraction First (When Source PDF Exists)**:
    - If the vector source PDF of the standard is present in the folder, first attempt direct lossless vector extraction via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"`.
-3. **Direct Multimodal LLM Vision-to-SVG Authoring (When Redrawing from Raster)**:
-   - **Step A — Visual Grid & Angle Analysis**: Inspect the original screenshot using multimodal vision. Map its proportions onto a clean `viewBox="0 0 400 320"` (or `800 600`) coordinate system. Preserve the **exact angles, orientation, and topology** of the original (e.g., if the barrier hatching is slanted at $45^\circ$, the slot opening $e$ is angled upward-right, and the hand/finger reaches diagonally upward-left with a slanted $s_r$ dimension line, your SVG must match that exact geometry—never rotate a slanted reach into a vertical wall!).
-   - **Step B — Anatomical & Mechanical Precision**: Craft bespoke cubic/quadratic Bézier `<path d="M ... C ... Q ..."/>` contours for each specific drawing:
-     - *Finger (`Palec`)*: Distinct extended index finger, folded middle/ring/pinky knuckles, thumb profile, and palm base.
-     - *Hand (`Dłoń`)*: Open palm with thumb and 4 separated fingers extending across the slot/hazard zone.
-     - *Arm (`Kończyna górna`)*: Hand with fingers at the tip, long tapering forearm/upper arm passing through the slot, shoulder contour, and anatomical head/neck profile in the correct perspective.
-   - **Step C — 3-Layer Semantic SVG Structure**:
-     - **Layer 1 (Background & Hatching)**: White canvas `<rect width="100%" height="100%" fill="#ffffff" rx="6" ry="6"/>` plus clean `<pattern id="hatch-45">` zones clipped exactly to the hazard/barrier area of the original drawing.
-     - **Layer 2 (Contours & Silhouettes)**: Crisp dark strokes (`stroke="#111111"`, `stroke-width="2"`, `stroke-linecap="round"`, `stroke-linejoin="round"`) with `fill="#ffffff"` where the silhouette masks background hatching, or `fill="none"` where internal slot lines remain visible (matching the original transparency/overlap).
-     - **Layer 3 (ISO 129 Dimensions & Typography)**: Extension lines, sharp `<marker id="arrow">` dimension lines angled parallel/perpendicular to the measured feature, and vector `<text font-style="italic" font-weight="bold">` labels with `<tspan>` subscripts (e.g., $s_r$, $e$) and a white halo (`paint-order="stroke" stroke="#ffffff" stroke-width="4"`). Always escape `<`, `>`, `&` in XML text.
-4. **MANDATORY Visual Self-Check (Render & Compare Before Presenting)**:
-   - Never rely solely on XML syntax validation (`svg_generator.py --validate`).
-   - After writing the `.svg` file, render or inspect the generated SVG visually alongside the original `.png` screenshot.
-   - Verify that: (a) the viewing angle and barrier orientation match $1:1$, (b) the anatomical/mechanical shape genuinely looks like the original object, and (c) dimension arrows ($s_r$, $e$) point to the exact same reference points. If there is any discrepancy, refine the `<path>` coordinates before showing the user.
-5. **STOP & REVIEW Gate**:
-   - Present the original raster screenshot side-by-side with the visually verified SVG preview and ask:
-     > *"Czy zatwierdzasz przerysowany Rysunek X, czy wprowadzić poprawki?"*
-   - Save the final `.svg` in `Attachments/` and link it (`![[Rysunek X - Nazwa.svg|800]]`) only after explicit user approval.
+6. **STOP & REVIEW Gate**:
+   - Present the original raster screenshot side-by-side with the restored/vectorized preview and ask:
+     > *"Czy zatwierdzasz grafikę dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*
+   - Save the final asset in `Attachments/` and link it only after explicit user approval.
 
 ---
 
@@ -250,7 +245,11 @@ Never dump entire multi-page PDFs or read all files in a standard's folder manua
 
 Before presenting any completed section or note to the user, verify:
 - [ ] **Data Truth ($100\%$ Verbatim)**: All text matches the scan word-for-word in the original language; zero paraphrasing, translations, or missing footnotes.
-- [ ] **Visual SVG Fidelity (1:1 Match)**: Drawings are authored via Multimodal LLM Vision-to-SVG (no auto-tracing webs, no lazy generic script shapes). Orientation, angles, anatomical/mechanical details, hatching zones, and dimension arrows ($s_r$, $e$) visually match the original screenshot.
-- [ ] **XML / SVG Integrity**: File passes `svg_generator.py --validate` with proper XML entity escaping (`&lt;`, `&gt;`, `&amp;`).
+- [ ] **Graphics Quality & Fidelity**:
+  - Drawings & miniatures have pure white background (`#ffffff`), 0% gray scanner noise, and 0% watermarks (PKN/WBY).
+  - High-DPI resolution (sharp on 4K and in PDF).
+  - Zero AI image generation hallucinations.
+  - Zero legend duplication under notes when already present inside drawing cards.
+- [ ] **XML / SVG Integrity**: Vector files pass `svg_generator.py --validate` with proper XML entity escaping (`&lt;`, `&gt;`, `&amp;`).
 - [ ] **YAML & `.base` Compliance**: Required properties (`norm_number`, `norm_point` / `norm_table` / `norm_drawing`, `norm_in_possesion`) are present and all wikilinks in YAML are enclosed in double quotes (`index: ["[[...]]"]`).
 - [ ] **Tag Consistency**: Every YAML and inline tag exists in `tags_catalog.json` (using full Polish words, never truncated prefixes).
