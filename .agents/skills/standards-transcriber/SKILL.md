@@ -65,7 +65,8 @@ Dla wybranej notatki punktu:
    - Indeksy i wzory matematyczne formatuj w KaTeX (np. `$PFH_D$`, `$\ge 10^{-5}$`).
    - Załamania linii wewnątrz komórek realizuj przez `<br>`.
 2. **Tabele z piktogramami / miniaturami:**
-   - W komórce tabeli osadzaj grafikę: `![[Piktogram_Zakaz.svg|50]]<br>**Zakaz**`.
+   - Każda miniatura/ilustracja wewnątrz tabeli musi zostać przerysowana do wektora `.svg` z zachowaniem procedury **Stop & Review** (prezentacja oryginału i wygenerowanego wektora do akceptacji użytkownika).
+   - W komórce tabeli osadzaj wygenerowany wektor: `![[Nazwa_Miniatury.svg|90]]`.
 3. **Tabele skomplikowane (ze scalonymi nagłówkami lub komórkami `colspan`/`rowspan`):**
    - Stosuj **czysty kod HTML `<table>`** (`<thead>`, `<tbody>`, `<tr>`, `<th colspan="...">`, `<td rowspan="...">`). Obsidian renderuje je bezbłędnie.
 
