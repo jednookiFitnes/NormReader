@@ -175,21 +175,20 @@ b Odwołanie do niniejszej części ISO 13849
 
 ---
 
-## 5. Technical SVG Redrawing (Mandatory Stop & Review Loop)
+## 5. Technical Drawing Vectorization (`Stop & Review` Protocol)
 
-Every technical drawing, block diagram, nomogram, or flowchart must be redrawn as a clean **SVG** vector file under strict user supervision:
+Every technical figure, block diagram, or dimensional safety illustration must be reconstructed cleanly under strict user control:
 
-1. **Engineering Visual Standard**:
-   - Include an explicit white background card (`<rect width="100%" height="100%" fill="#ffffff" rx="6" ry="6"/>`) so the diagram remains $100\%$ legible in both Obsidian Dark Mode and Light Mode.
-   - Use crisp dark strokes (`#222222`, `stroke-width="1.5"` to `"2"`), clean sans-serif typography (`Segoe UI, Roboto, Arial, sans-serif`), and `<marker id="arrow"...>` definitions.
-   - **XML Entity Safety**: Always escape `<`, `>`, `&`, `"`, and `'` (`&lt;`, `&gt;`, `&amp;`) inside `<text>` and `<tspan>` elements. Validate the file with `svg_generator.py --validate "<path.svg>"`.
-2. **STOP & REVIEW Gate (Non-Negotiable)**:
-   - Pause execution and present to the user:
-     1. Path/reference to the original screenshot.
-     2. The generated SVG code / preview.
-     3. Explicit approval prompt: *"Czy zatwierdzasz przerysowany Rysunek X, czy wprowadzić poprawki?"*
-3. **Save After Approval**:
-   - Only after explicit user confirmation, save the `.svg` file into the standard's `Attachments/` directory and link it in the drawing note (`![[Rysunek X - Nazwa.svg|800]]`).
+1. **STRICT BAN ON BLIND BITMAP AUTO-TRACING (`potrace` / `cv2.findContours`)**:
+   - **NEVER** run automatic bitmap contour tracers (`potrace`, `findContours`, `approxPolyDP`) on technical drawings containing dimension lines, arrows, text labels ($s_r$, $e$, $h$), or cross-hatching (`///`). Auto-tracing low-resolution screenshots merges intersecting lines into jagged black webs and turns text labels into unreadable blobs.
+2. **Constructive CAD-SVG Layering (via `scripts/svg_generator.py`)**:
+   - **Layer 1 (Hatching / Zones)**: Always use SVG `<pattern id="hatch-45">` (`add_hatch_zone`) for diagonal safety/material cross-hatching so it never merges with foreground geometry.
+   - **Layer 2 (Foreground Silhouettes / Components)**: Draw machine guards, openings, and anatomical silhouettes (finger, hand, arm) as clean geometric primitives or smooth Bézier `<path>` elements (`add_path`) with an opaque white fill (`fill="#ffffff"`) and dark stroke (`stroke="#111111"`) so they cleanly mask the hatching underneath.
+   - **Layer 3 (ISO Dimensions & Typography)**: Draw extension lines, ISO arrows, and dimension labels (`s_r`, `e`) using `add_dimension()` and `add_text()` so all symbols are crisp vector fonts with proper subscripts (`<tspan>`) and white halo (`paint-order="stroke"`).
+3. **PDF Vector Extraction First (When PDF Exists)**:
+   - If the source standard PDF is available in the norm folder, prefer extracting embedded vector figures directly via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"` before manual reconstruction.
+4. **STOP & REVIEW**:
+   - Pause and present the original raster screenshot alongside the newly constructed SVG for user approval before linking it into the final note.
 
 ---
 
