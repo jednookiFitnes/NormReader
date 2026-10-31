@@ -3,12 +3,14 @@
 """
 svg_generator.py - Moduł i CLI do tworzenia oraz walidacji czystych technicznych grafik wektorowych SVG.
 Zgodny z Obsidianem (zarówno tryb ciemny, jak i jasny), standardem UTF-8 i polskimi znakami diakrytycznymi.
+Automatycznie escapuje encje XML (<, >, &) w tekstach inżynierskich.
 """
 
 import sys
 import os
 import argparse
 import xml.etree.ElementTree as ET
+from xml.sax.saxutils import escape
 
 if sys.platform.startswith("win"):
     try:
@@ -21,7 +23,7 @@ class TechnicalSVG:
     def __init__(self, width=800, height=600, title="Rysunek Techniczny"):
         self.width = width
         self.height = height
-        self.title = title
+        self.title = escape(title)
         self.elements = []
         self.defs = [
             # Standardowy grot strzałki inżynierskiej
@@ -65,8 +67,8 @@ class TechnicalSVG:
         )
 
     def add_text(self, x, y, text, font_size=13, font_weight="normal", text_anchor="middle", fill="#111111"):
-        # Obsługa wieloliniowego tekstu
-        lines = text.split("\n")
+        # Escapowanie znaków <, >, & dla pełnej zgodności z XML
+        lines = [escape(line) for line in text.split("\n")]
         if len(lines) == 1:
             self.elements.append(
                 f'<text x="{x}" y="{y}" font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" '

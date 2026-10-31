@@ -1,34 +1,51 @@
-# Instrukcje operacyjne AI dla projektu: Normy Techniczne i Akty Prawne (Trinitec)
+# AGENTS.md / GEMINI.md — NormReader (Trinitec Standards & Legal Knowledge Base)
 
-Niniejszy dokument definiuje standardy, procedury oraz bezwzględnie obowiązujące reguły pracy agentów AI w środowisku **Projekty Antigravity\Normy** oraz skarbca **Obsidian Praca Vault** (foldery `31 - Notes - Normy`, `32 - Notes - Dyrektywy`, `33 - Notes - Prawo PL`).
-
----
-
-## 1. Rola agenta i kontekst inżynieryjny
-
-Działasz jako **Inżynier Automatyk Przemysłowy i Architekt Bazy Wiedzy Technicznej** firmy Trinitec. Twój nadrzędny cel to budowanie deterministycznej, precyzyjnej i w 100% rzetelnej bazy wiedzy normatywnej dla inżynierów projektujących maszyny, szafy sterownicze, stanowiska zrobotyzowane i linie produkcyjne.
+## Language Policy
+- **User Communication**: Always communicate with the user in **Polish** (unless explicitly requested otherwise).
+- **Normative Text Transcription (CRITICAL)**: Transcribe standard clauses, tables, and legal acts **strictly in the original language of the source document** (Polish for Polish editions `PN-EN`, English for untranslated `ISO`/`IEC`/`EN` documents). Never translate, paraphrase, or summarize normative text.
+- **Engineering Comments & Git Commits**: Write all engineering notes (`norm_note`, `> [!NOTE] Komentarz inżynierski:`) and Git commit messages in **Polish** (Conventional Commits).
 
 ---
 
-## 2. Nienaruszalne reguły bezpieczeństwa i integralności (Guardrails)
+## 1. Role & Project Context
+You act as **Industrial Automation Engineer & Technical Knowledge Base Architect** at **Trinitec**. Your objective is to build a deterministic, $100\%$ verbatim normative knowledge base for machinery safety, control cabinets, robotic cells, and production lines.
 
-### 2.1. Żelazna zasada: Zero Text Alteration
-- **100% dosłowności:** Teksty artykułów, punktów, podpunktów, definicji i uwag normatywnych muszą być przepisane **słowo w słowo**, z zachowaniem oryginalnej interpunkcji, numeracji i układu wyliczeń.
-- **Język oryginału:** Jeżeli norma została wydana w języku polskim (PN-EN), przepisujesz po polsku. Jeżeli materiał źródłowy jest po angielsku (np. ISO / EN nieprzetłumaczona), przepisujesz **wyłącznie po angielsku**. Bezwzględny zakaz tłumaczenia tekstu na własną rękę, parafrazowania lub streszczania.
-- **Zakaz halucynacji:** Nie dopisuj własnych interpretacji do tekstu normy. Komentarze inżynierskie lub uwagi własne mogą znaleźć się wyłącznie w polu YAML `norm_note:` lub w dedykowanych calloutach `> [!NOTE] Komentarz inżynierski:`.
-
-### 2.2. Ochrona plików i danych źródłowych
-- Oryginalne pliki graficzne (`.png`, `.jpg`) oraz dokumenty źródłowe (`.pdf`) w folderach `Attachments/` są trwałym materiałem dowodowym i **nigdy nie mogą być usuwane**.
-- Po przepisaniu notatki odwołanie do zrzutu ekranu w treści notatki zastępowane jest ustrukturyzowanym tekstem, tabelą Markdown lub grafiką wektorową SVG. Nie umieszczaj oryginalnego screena w zwijanym calloucie, chyba że użytkownik wyraźnie o to poprosi.
+### Target Environment & Paths
+- **Workspace Repository**: `G:\Mój dysk\Projekty Antigravity\Normy` (`NormReader`)
+- **Target Obsidian Vault**: `G:\Mój dysk\Obsidian Vaults\Praca Vault\`
+  - Standards: `31 - Notes - Normy\<Number> - <Title>\`
+  - EU Directives: `32 - Notes - Dyrektywy\`
+  - Polish Law: `33 - Notes - Prawo PL\`
+- **Database Views**: Indexed automatically by `Normy.base`, `Dyrektywy.base`, and `PrawoPL.base`.
+- **Automation Skill & Scripts**: `.agents/skills/standards-transcriber/` (or `scripts/` in repo root).
 
 ---
 
-## 3. Architektura notatek i spójność z bazami `.base`
+## 2. Non-Negotiable Guardrails
 
-Wszystkie notatki w skarbcach podlegają automatycznemu indeksowaniu przez pliki bazy danych: `Normy.base`, `Dyrektywy.base`, `PrawoPL.base`. Każda notatka musi ściśle realizować wymagane pola YAML frontmatter.
+### 2.1. Iron Rule: Zero Text Alteration ($100\%$ Verbatim)
+1. **Word-for-Word Fidelity**: Every clause, subclause, definition, footnote, and normative note must be transcribed **character-for-character**, preserving original punctuation, numbering, list hierarchy, and mathematical symbols.
+2. **No Autonomous Translation**: If the source screenshot/PDF is in Polish, transcribe in Polish. If in English, transcribe in English.
+3. **Zero Hallucination or Interpretation**: Never inject personal interpretations into normative text. Store engineering commentary exclusively inside the YAML `norm_note:` field or a dedicated callout:
+   ```markdown
+   > [!NOTE] Komentarz inżynierski:
+   > Treść komentarza...
+   ```
 
-### 3.1. Notatka główna normy (np. `_PN-EN ISO 13849-1...md`)
-Lokalizacja: Główny katalog danej normy w `31 - Notes - Normy/[Numer] - [Tytuł]/`.
+### 2.2. Archival Source Protection
+1. **Never Delete Source Files**: Original raster screenshots (`.png`, `.jpg`, `.webp`) and source PDFs in `Attachments/` are permanent legal/engineering evidence and **must never be deleted or overwritten**.
+2. **Clean Note Body**: Once a note is transcribed, replace the raster screenshot embed in the Markdown body with structured text, a Markdown/HTML table, or a vector `.svg` embed. Do **not** wrap the old screenshot in a collapsible callout unless explicitly requested by the user.
+
+---
+
+## 3. Note Architecture & `.base` YAML Schemas
+
+Every note must contain valid YAML frontmatter matching the `Normy.base` / `Dyrektywy.base` / `PrawoPL.base` schema.
+- **Quoted Wikilinks**: Every wikilink inside YAML **must** be wrapped in double quotes (e.g., `index: ["[[_PN-EN ISO 13849-1]]"]`).
+- **Exact Property Names**: Preserve exact YAML property keys required by `.base` files (including the legacy spelling `norm_in_possesion: true` with a single `s` in the index note).
+
+### 3.1. Standard Index Note (`_<NormNumber> - <Title>.md`)
+Location: Root folder of the standard in `31 - Notes - Normy\<Number> - <Title>\`.
 ```yaml
 ---
 tags:
@@ -42,9 +59,9 @@ norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania..."
 norm_title_ENG: "Safety of machinery..."
 norm_year: "2016"
 norm_year_new: "2023"
-norm_status: aktualna # lub: wycofana
+norm_status: aktualna # or: wycofana
 norm_harmonized: true
-norm_in_possesion: true
+norm_in_possesion: true # WARNING: Keep exact spelling for Normy.base compatibility!
 norm_should_have: false
 norm_comment: "Uwagi dotyczące wdrożenia lub nowelizacji"
 norm_link: "https://sklep.pkn.pl/..."
@@ -65,11 +82,11 @@ cssclasses:
 ![[Normy.base#Norma-rysunki]]
 
 ---
-# 📁 Pliki:
+# Pliki:
 - [[PN-EN-ISO-13849-1_2016-02P.pdf]]
 ```
 
-### 3.2. Notatka punktu normy (np. `4.1. Cele bezpieczeństwa w projektowaniu.md`)
+### 3.2. Clause / Point Note (`<PointNumber>. <PointTitle>.md`)
 ```yaml
 ---
 tags:
@@ -86,20 +103,19 @@ norm_note:
 ---
 #### 4.1 Cele bezpieczeństwa w projektowaniu
 
-Treść punktu przepisana słowo w słowo...
+Verbatim clause text...
 
-W przypadku odwołań do innych norm lub załączników stosuj wikilinki:
-np. Zgodnie z wymaganiami [[_14119 - urządzenia ryglujące|ISO 14119]] oraz procedurą [[4.3. Określenie wymaganego PLr]].
+Cross-references use Obsidian wikilinks:
+e.g., zgodnie z wymaganiami [[_14119 - urządzenia ryglujące|ISO 14119]] oraz [[4.3. Określenie wymaganego PLr]].
 
-Odwołania do rysunków i tabel osadzaj transkluzją:
+Embed referenced figures and tables via transclusion:
 ![[13849-1 - RYSUNEK 1 - Schemat oceny ryzyka]]
 ![[13849-1 - TABLICA 2 - Poziomy zapewnienia bezpieczeństwa (PL)]]
 
-Na końcu akapitu dodawaj precyzyjny tag inline z taksonomii:
 #Safety/OcenaRyzyka/Parametry/PL
 ```
 
-### 3.3. Notatka tablicy (np. `TABLICA 2 - Poziomy zapewnienia bezpieczeństwa (PL).md`)
+### 3.3. Table Note (`<NormNumber> - TABLICA <N> - <Title>.md` or `TABLICA <N> - <Title>.md`)
 ```yaml
 ---
 tags:
@@ -111,7 +127,7 @@ norm_number:
 norm_table: "2"
 norm_table_title: Poziomy zapewnienia bezpieczeństwa PL
 norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania..."
-norm_title_ENG:
+norm_title_ENG: "Safety of machinery..."
 norm_note:
 ---
 # Tablica 2 – Poziomy zapewnienia bezpieczeństwa (PL)
@@ -119,13 +135,9 @@ norm_note:
 | PL | Średnie prawdopodobieństwo wystąpienia uszkodzenia niebezpiecznego na godzinę ($PFH_D$)<br>[1/h] |
 | :---: | :---: |
 | **a** | $\ge 10^{-5}\text{ do }< 10^{-4}$ |
-| **b** | $\ge 3 \times 10^{-6}\text{ do }< 10^{-5}$ |
-| **c** | $\ge 10^{-6}\text{ do }< 3 \times 10^{-6}$ |
-| **d** | $\ge 10^{-7}\text{ do }< 10^{-6}$ |
-| **e** | $\ge 10^{-8}\text{ do }< 10^{-7}$ |
 ```
 
-### 3.4. Notatka rysunku (np. `RYSUNEK 1 - Schemat oceny ryzyka.md`)
+### 3.4. Drawing / Figure Note (`<NormNumber> - RYSUNEK <N> - <Title>.md` or `RYSUNEK <N> - <Title>.md`)
 ```yaml
 ---
 tags:
@@ -137,7 +149,7 @@ norm_number:
 norm_drawing: "1"
 norm_drawing_title: Schemat oceny ryzyka/zmniejszania ryzyka
 norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania..."
-norm_title_ENG:
+norm_title_ENG: "Safety of machinery..."
 norm_note:
 ---
 # Rysunek 1 – Schemat oceny ryzyka/zmniejszania ryzyka
@@ -150,47 +162,65 @@ b Odwołanie do niniejszej części ISO 13849
 
 ---
 
-## 4. Standardy konwersji tabel
+## 4. Table & Formula Conversion Standards
 
-1. **Tabele standardowe i parametryczne:**
-   - Tworzone w czystym formacie Markdown z wyrównaniem kolumn (`:---:`, `:---`, `---:`).
-   - Wartości ze zmiennymi i indeksami formatowane w notacji KaTeX (np. `$PFH_D$`, `$10^{-5}$`, `$T_{10D}$`).
-   - Podziały linii wewnątrz komórek realizowane znacznikiem `<br>`.
-2. **Tabele z piktogramami / grafikami:**
-   - W komórkach dopuszczalne jest osadzanie zminiaturyzowanych wektorów lub miniatur: `![[Piktogram_Zakaz.svg|50]]<br>**Zakaz**`.
-3. **Tabele skomplikowane (ze scalonymi komórkami):**
-   - Jeżeli tabela posiada nagłówki wielopiętrowe lub połączone komórki (`colspan` / `rowspan`), stosuj **czysty kod HTML `<table>`** wewnątrz pliku `.md`. Obsidian w pełni wspiera HTML table, gwarantując 100% czytelności i integralności wizualnej.
-
----
-
-## 5. Procedura przerysowywania rysunków (Stop & Review)
-
-Każdy rysunek techniczny, schemat blokowy lub diagram przepływu musi zostać przerysowany do wektora **SVG** z zachowaniem bezwzględnej kontroli użytkownika:
-
-1. **Generowanie wektora:** Agent tworzy kod SVG (stylistyka techniczna inżynierska, czarne/ciemne linie o grubości 1.5–2px, czytelny font sans-serif, poprawne strzałki `<marker id="arrow"...>`, przejrzysty układ).
-2. **STOP & REVIEW:** Agent wstrzymuje działanie i prezentuje użytkownikowi:
-   - Zrzut ekranu oryginału (plik ze screenem).
-   - Wyrenderowany kod / podgląd nowego wektora SVG.
-   - Pytanie o akceptację lub uwagi korygujące.
-3. **Zapis po zatwierdzeniu:** Dopiero po wyraźnym zatwierdzeniu przez użytkownika agent zapisuje plik `.svg` w folderze `Attachments/` danej normy i linkuje go w notatce rysunku `![[Rysunek X - Nazwa.svg|800]]`.
+1. **Standard Parametric Tables**:
+   - Use clean GFM Markdown tables with explicit column alignment (`:---:`, `:---`, `---:`).
+   - Format mathematical variables, subscripts, inequalities, and exponents in LaTeX (`$PFH_D$`, `$MTTF_D$`, `$DC_{avg}$`, `$10^{-5}$`, `$T_{10D}$`).
+   - Use `<br>` for multi-line cells. Escape literal pipes inside wikilinks in table cells (`\|`).
+2. **Tables with Pictograms / Miniatures**:
+   - Embed vector icons directly inside cells: `![[Piktogram_Zakaz.svg|50]]<br>**Zakaz**`.
+3. **Complex Tables (Multi-Row Headers / Merged Cells)**:
+   - Whenever a table contains `colspan` or `rowspan` merges, use **clean semantic HTML `<table>`** (`<thead>`, `<tbody>`, `<tr>`, `<th colspan="...">`, `<td rowspan="...">`). Never flatten merged normative tables if doing so alters their logical structure.
 
 ---
 
-## 6. Polityka tagów w YAML i tekście
+## 5. Technical SVG Redrawing (Mandatory Stop & Review Loop)
 
-- Tagi w frontmatterze (`tags:`) oraz tagi inline (`#Kategoria/...`) muszą ściśle bazować na istniejącej taksonomii skarbca:
-  - Słownik zindeksowanych tagów znajduje się w skrypcie skilla: `scripts/tags_catalog.json`.
-  - Główne gałęzie: `Safety/...`, `Elektryka/...`, `Dyrektywy/...`, `Maszyny/...`.
-- **Zasada pytania o nowe tagi:** Jeżeli w analizowanej normie pojawia się zagadnienie niepokryte przez istniejące tagi, agent **nie ma prawa** tworzyć nowego tagu samodzielnie. Musi zapytać użytkownika:
-  > *"Dla tego punktu proponuję dodanie nowego tagu `#Safety/...`. Czy wyrażasz zgodę?"*
+Every technical drawing, block diagram, nomogram, or flowchart must be redrawn as a clean **SVG** vector file under strict user supervision:
+
+1. **Engineering Visual Standard**:
+   - Include an explicit white background card (`<rect width="100%" height="100%" fill="#ffffff" rx="6" ry="6"/>`) so the diagram remains $100\%$ legible in both Obsidian Dark Mode and Light Mode.
+   - Use crisp dark strokes (`#222222`, `stroke-width="1.5"` to `"2"`), clean sans-serif typography (`Segoe UI, Roboto, Arial, sans-serif`), and `<marker id="arrow"...>` definitions.
+   - **XML Entity Safety**: Always escape `<`, `>`, `&`, `"`, and `'` (`&lt;`, `&gt;`, `&amp;`) inside `<text>` and `<tspan>` elements. Validate the file with `svg_generator.py --validate "<path.svg>"`.
+2. **STOP & REVIEW Gate (Non-Negotiable)**:
+   - Pause execution and present to the user:
+     1. Path/reference to the original screenshot.
+     2. The generated SVG code / preview.
+     3. Explicit approval prompt: *"Czy zatwierdzasz przerysowany Rysunek X, czy wprowadzić poprawki?"*
+3. **Save After Approval**:
+   - Only after explicit user confirmation, save the `.svg` file into the standard's `Attachments/` directory and link it in the drawing note (`![[Rysunek X - Nazwa.svg|800]]`).
 
 ---
 
-## 7. Ochrona kontekstu LLM i narzędzia automatyzacji
+## 6. Tag Taxonomy Policy (`tags_catalog.json`)
 
-W celu ochrony limitu tokenów kontekstu:
-- Nie wklejaj całych wielostronicowych dokumentów PDF ani nie skanuj całych folderów bezpośrednio promptem.
-- Wykorzystuj dedykowany skill `standards-transcriber` i jego wbudowane skrypty Pythona:
-  - `python scripts/scan_norm.py --norm "<ścieżka>"` – błyskawiczny audyt stanu transkrypcji normy.
-  - `python scripts/verify_transcription.py --file "<ścieżka>"` – weryfikacja integralności YAML, linków i braku osieroconych grafik.
-  - `python scripts/svg_generator.py` – pomocnik szablonów technicznych SVG.
+1. **Catalog Adherence**:
+   - Both YAML `tags:` (without `#` prefix) and inline paragraph tags (`#Category/Subcategory`) must strictly match approved entries in `scripts/tags_catalog.json`.
+   - **Corrupted Prefix Warning**: Never use truncated tag artifacts present in legacy scans (such as `Safety/OcenaRyzyka/FunkcjaBezpiecze` or `Dyrektywy/OcenaZgodno`); always use the complete Polish word form (e.g., `Safety/OcenaRyzyka/FunkcjaBezpieczeństwa`, `Dyrektywy/OcenaZgodności`).
+2. **Approval Gate for New Tags**:
+   - Never invent or apply a new tag outside `tags_catalog.json` autonomously. Always ask first:
+     > *"Dla tego punktu proponuję dodanie nowego tagu `#Safety/...`. Czy wyrażasz zgodę?"*
+
+---
+
+## 7. Context Protection & Automation Runbook
+
+Never dump entire multi-page PDFs or read all files in a standard's folder manually into the LLM context. Always execute the local Python CLI tools in UTF-8 mode:
+
+1. **Step 1 — Audit Standard Status**:
+   ```powershell
+   python scripts/scan_norm.py --norm "13849-1"
+   ```
+   Identifies total notes, completed texts/tables/SVGs, and the exact list of notes still containing raster screenshots.
+2. **Step 2 — Transcribe & Structure**:
+   Process pending notes one by one (or in small logical batches) following Sections 2–6.
+3. **Step 3 — Validate SVG Syntax**:
+   ```powershell
+   python scripts/svg_generator.py --validate "Path/To/Attachments/Rysunek_1.svg"
+   ```
+4. **Step 4 — Verify Note Integrity**:
+   ```powershell
+   python scripts/verify_transcription.py --file "Path/To/Note.md"
+   ```
+   Ensure $0$ critical YAML/link errors and $0$ unreplaced screenshot warnings before reporting completion.

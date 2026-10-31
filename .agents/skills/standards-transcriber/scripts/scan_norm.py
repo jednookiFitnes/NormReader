@@ -84,7 +84,7 @@ def analyze_note(file_path):
         status = "gotowa (tabela)"
     elif note_type == "rysunek" and svgs:
         status = "gotowa (wektor SVG)"
-    elif len(body.strip()) > 50:
+    elif len(body.strip()) > 15:
         status = "gotowa (tekst)"
     else:
         status = "pusta / szkic"
