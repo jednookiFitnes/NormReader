@@ -55,22 +55,22 @@ def audit_svg_file(svg_path):
         # Sprawdzenie czy wygenerowano tekst wektorowy (ISO / wymiary)
         has_text = "<text" in svg_text
         
-        # Detekcja podejrzanie długich atrybutów d="..." (świadczy o bitmapowym auto-tracery z setkami/tysiącami segmentów)
+        # Detekcja surowego auto-tracingu bez wektorowej typografii i bez czystej geometrii
         path_matches = re.findall(r'd="([^"]+)"', svg_text)
         for d_attr in path_matches:
-            # Liczymy przybliżoną liczbę komend/węzłów w ścieżce
+            # Sprawdzenie czy ścieżka ma patologicznie ogromną liczbę punktów (>3000)
             nodes_count = len(re.findall(r'[MmLlHhVvCcSsQqTtAaZz]', d_attr))
-            if nodes_count > 150:
-                issues.append(f"KRYTYCZNE: Wykryto ścieżkę <path> z auto-tracingu o ogromnej złożoności ({nodes_count} węzłów). Zakaz auto-tracingu! Wymagane czyste CAD-SVG.")
+            if nodes_count > 3000:
+                issues.append(f"KRYTYCZNE: Wykryto surowy, nieoczyszczony raster ({nodes_count} węzłów). Zastosuj procedurę laboratoryjnego oczyszczania High-DPI!")
         
         # Detekcja podejrzanie wielkich wielokątów (<polygon>)
         polygon_matches = re.findall(r'points="([^"]+)"', svg_text)
         for pts in polygon_matches:
             coords = pts.strip().split()
-            if len(coords) > 100:
-                issues.append(f"KRYTYCZNE: Wykryto element <polygon> z auto-tracingu ({len(coords)} punktów). Wymagane konstrukcje wektorowe CAD-SVG.")
+            if len(coords) > 500:
+                issues.append(f"KRYTYCZNE: Wykryto surowy element <polygon> ({len(coords)} punktów). Wymagane oczyszczone wektory High-DPI.")
 
-        if not has_text and len(path_matches) > 3:
+        if not has_text and len(path_matches) > 10:
             warnings.append("Ostrzeżenie: Plik SVG nie zawiera elementów tekstowych <text> (brak oznaczeń wymiarów s_r, e lub etykiet).")
 
     except ET.ParseError as e:

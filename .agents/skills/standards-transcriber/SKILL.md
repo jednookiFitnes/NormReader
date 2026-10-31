@@ -59,19 +59,18 @@ Dla wybranej notatki punktu:
    - `![[13849-1 - TABLICA 2 - Poziomy zapewnienia bezpieczeństwa (PL)]]`
 6. Dodaj precyzyjny tag inline na końcu akapitu (np. `#Safety/OcenaRyzyka/Parametry/PL`).
 
-### Krok 3: Konwersja tabel
-1. **Tabele standardowe i parametryczne:**
-   - Twórz w czystym formacie Markdown (`| ... |`) z jawnym wyrównaniem kolumn.
-   - **Kompatybilność z Pandoc GUI:** Pandoc w trybie kompilacji do PDF (`pdflatex`) usuwa znaczniki surowego HTML `<table>`. Wszystkie tabele normatywne twórz w formacie Markdown.
-   - Indeksy i wzory matematyczne formatuj w KaTeX (np. `$PFH_D$`, `$\ge 10^{-5}$`).
-   - Załamania linii wewnątrz komórek realizuj przez `<br>`.
+### Krok 3: Konwersja tabel (Format HTML `<table>`)
+1. **Format tabel:**
+   - Wszystkie tabele twórz w czystym formacie **HTML `<table>`**, aby zachować 100% zgodności z geometrią i układem tabeli w normie.
+   - **Szerokości i wysokości komórek:** Mierz i odtwarzaj proporcjonalne szerokości (`width: %`) oraz minimalne wysokości wierszy (`height: px`) ściśle według skanu.
+   - **Scalenia (`rowspan` / `colspan`):** Odwzorowuj wielopoziomowe nagłówki oraz scalone komórki części ciała i miniatur.
+   - **Grube linie graniczne:** Zgodnie z normą wyróżniaj granice stref wymiarowych za pomocą styli CSS (`border-top: 2.5px solid var(--text-normal, #111);`, `border-right: ...`).
+   - Indeksy i wzory matematyczne formatuj w KaTeX (np. `$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
 2. **Tabele z piktogramami / miniaturami:**
    - Zastosuj **złotą zasadę rycin**: *„Grafika ma być taka sama tylko z wyższą rozdzielczością, bez szarego pod spodem i z czytelnymi opisami”*.
    - Kategoryczny zakaz generowania grafiki przez modele AI (diffusion/Imagen) — halucynują one wymiary i geometrię.
    - Oczyść raster ze skanu (odcięcie szarości i znaków wodnych PKN/WBY do czystej bieli `#ffffff`, powiększenie 4x High-DPI z wyostrzeniem krawędzi).
-   - W komórce tabeli osadzaj oczyszczony wektor lub High-DPI raster: `![[Tablica X - Nazwa.svg\|90]]` z zachowaniem procedury **Stop & Review**.
-3. **Tabele skomplikowane (ze scalonymi nagłówkami lub komórkami `colspan`/`rowspan`):**
-   - Wyłącznie gdy nie da się zachować logiki w Markdown, stosuj **czysty kod HTML `<table>`** (`<thead>`, `<tbody>`, `<tr>`, `<th colspan="...">`, `<td rowspan="...">`), pamiętając o ograniczeniach eksportu PDF Pandoc.
+   - W komórce tabeli osadzaj oczyszczony wektor lub High-DPI raster: `![[Tablica X - Nazwa.svg|140]]` z zachowaniem procedury **Stop & Review**.
 
 ### Krok 4: Przerysowanie / rekonstrukcja rysunku i pętla Stop & Review
 1. **Wybór metody rekonstrukcji:**

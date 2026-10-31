@@ -164,15 +164,15 @@ b Odwołanie do niniejszej części ISO 13849
 
 ## 4. Table & Formula Conversion Standards
 
-1. **Standard Parametric Tables**:
-   - Use clean GFM Markdown tables with explicit column alignment (`:---:`, `:---`, `---:`).
-   - **PANDOC COMPATIBILITY WARNING**: Do NOT use raw HTML `<table>` for standard tables unless absolutely necessary for complex cell spanning (`colspan`/`rowspan`). Pandoc GUI in PDF engine (`pdflatex` / `xelatex`) drops raw HTML table tags, flattening cells into unformatted text.
-   - Format mathematical variables, subscripts, inequalities, and exponents in LaTeX (`$PFH_D$`, `$MTTF_D$`, `$DC_{avg}$`, `$10^{-5}$`, `$T_{10D}$`).
-   - Use `<br>` for multi-line cells. Escape literal pipes inside wikilinks in table cells (`\|`).
-2. **Tables with Pictograms / Miniatures**:
-   - Embed vector icons or High-DPI cleaned images directly inside cells: `![[Tablica 4 - Czubek palca.svg\|90]]` or `![[Piktogram_Zakaz.svg\|50]]<br>**Zakaz**`.
-3. **Complex Tables (Multi-Row Headers / Merged Cells)**:
-   - When a table contains complex `colspan` or `rowspan` merges that cannot be expressed in Markdown, use **clean semantic HTML `<table>`** (`<thead>`, `<tbody>`, `<tr>`, `<th colspan="...">`, `<td rowspan="...">`), but be aware of Pandoc PDF export limitations.
+1. **Format tabel (HTML `<table>`)**:
+   - Wszystkie tabele tworzone są w **formacie HTML `<table>`**, aby zachować 100% zgodności z układem geometrycznym normy.
+   - **Szerokości i wysokości komórek**: Zachowuj proporcjonalne szerokości (`width: ...%`) oraz wysokości wierszy (`height: ...px`) komórek ściśle według oryginalnej tabeli ze skanu.
+   - **Scalenia i hierarchia nagłówków**: Stosuj `rowspan` i `colspan` dla wielopoziomowych nagłówków i powtarzających się wartości.
+   - **Grube linie graniczne**: Obramowania wyróżniające strefy graniczne części ciała wykonuj w stylach CSS (np. `border-top: 2.5px solid var(--text-normal, #111);`, `border-right: ...`).
+   - **Wzory i zmienne**: Formatuj zmienne matematyczne, indeksy i nierówności w LaTeX/KaTeX (`$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
+2. **Tabele z piktogramami / miniaturami**:
+   - Osadzaj oczyszczone miniatury High-DPI lub wektory SVG bezpośrednio w komórkach: `![[Tablica 4 - Czubek palca.svg\|140]]`.
+   - Zapewnij pionowe i poziome wyśrodkowanie: `text-align: center; vertical-align: middle; padding: 6px;`.
 
 ---
 
