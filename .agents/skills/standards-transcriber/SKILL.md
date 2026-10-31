@@ -83,6 +83,7 @@ Dla wybranej notatki punktu:
 5. Po zatwierdzeniu:
    - Zapisz plik `Rysunek X - Tytuł.svg` w folderze `Attachments/` danej normy.
    - W notatce `RYSUNEK X...md` wstaw odwołanie: `![[Rysunek X - Tytuł.svg|800]]`.
+6. **Brak duplikacji objaśnień (Zasada czystego widoku):** Jeśli objaśnienia/legenda rysunku (np. $a$, $b$, $c$, 1, 2, 3) są już zawarte wewnątrz wektora SVG na karcie graficznej, **nie przepisuj ich ponownie w treści notatki Markdown pod rysunkiem** – notatka rysunku zawiera wyłącznie osadzenie wektora `![[...svg|800]]` oraz tag.
 
 ### Krok 5: Uzupełnienie metadanych YAML
 Upewnij się, że notatka zawiera komplet pól wymaganych przez `Normy.base`:
