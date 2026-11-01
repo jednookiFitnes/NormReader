@@ -84,10 +84,9 @@ Dla wybranej notatki punktu:
    ```powershell
    python scripts/svg_generator.py --validate "<ścieżka.svg>"
    ```
-4. **Zaprezentuj zestawienie użytkownikowi:**
-   - Ścieżka do oryginalnego zrzutu ekranu.
-   - Kod / wizualizacja nowego wektora SVG.
-   - Zapytaj: *"Czy zatwierdzasz przerysowany Rysunek X, czy wprowadzić poprawki?"*.
+4. **Zaprezentuj zestawienie użytkownikowi bezpośrednio w Antigravity:**
+   - Wyświetl tabelę porównawczą lub zestawienie podglądu bezpośrednio w czacie Antigravity (np. oryginalna tabela vs wyrenderowana tabela Markdown/HTML lub karuzela), aby użytkownik mógł natychmiast zweryfikować treść i geometrię bez szukania plików.
+   - Zapytaj: *"Czy zatwierdzasz przerysowany Rysunek / Tablicę X, czy wprowadzić poprawki?"*.
 5. Po zatwierdzeniu:
    - Zapisz plik `Rysunek X - Tytuł.svg` w folderze `Attachments/` danej normy.
    - W notatce `RYSUNEK X...md` wstaw odwołanie: `![[Rysunek X - Tytuł.svg|800]]`.

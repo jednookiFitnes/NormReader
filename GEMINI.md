@@ -209,10 +209,11 @@ Every technical figure, block diagram, or table thumbnail must adhere to the fol
    - **Zero Legend Duplication**: Gdy etykiety lub objaśnienia oznaczeń ($a, b, c$, $1, 2, 3$) znajdują się bezpośrednio na karcie rysunku/tabeli, **nie powielaj ich w tekście Markdown notatki**.
 5. **PDF Vector Extraction First (When Source PDF Exists)**:
    - If the vector source PDF of the standard is present in the folder, first attempt direct lossless vector extraction via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"`.
-6. **STOP & REVIEW Gate**:
-   - Present the original raster screenshot side-by-side with the restored/vectorized preview and ask:
-     > *"Czy zatwierdzasz grafikę dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*
-   - Save the final asset in `Attachments/` and link it only after explicit user approval.
+6. **STOP & REVIEW Gate (Prezentacja porównawcza bezpośrednio w Antigravity)**:
+   - Zawsze przedstawiaj zestawienie porównawcze **bezpośrednio w interfejsie Antigravity** (oryginalna tabela/screen zestawiona z wygenerowaną tabelą Markdown/HTML lub karuzelą/podglądem SVG), aby użytkownik mógł natychmiast zweryfikować treść, układ i geometrię bezpośrednio w czacie bez szukania plików.
+   - Zapytaj:
+     > *"Czy zatwierdzasz grafikę / tabelę dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*
+   - Zapisz docelowy plik w `Attachments/` i utrwal link w notatce dopiero po akceptacji użytkownika.
 
 ---
 
