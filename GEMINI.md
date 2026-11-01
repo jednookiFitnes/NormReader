@@ -33,8 +33,22 @@ You act as **Industrial Automation Engineer & Technical Knowledge Base Architect
    ```
 
 ### 2.2. Archival Source Protection
-1. **Never Delete Source Files**: Original raster screenshots (`.png`, `.jpg`, `.webp`) and source PDFs in `Attachments/` are permanent legal/engineering evidence and **must never be deleted or overwritten**.
+1. **Never Delete Source Files Without Explicit Authorization**: Original raster screenshots (`.png`, `.jpg`, `.webp`) and source PDFs in `Attachments/` are permanent legal/engineering evidence and **must never be deleted or overwritten without explicit user authorization under the Stop & Verify protocol**.
 2. **Clean Note Body**: Once a note is transcribed, replace the raster screenshot embed in the Markdown body with structured text, a Markdown/HTML table, or a vector `.svg` embed. Do **not** wrap the old screenshot in a collapsible callout unless explicitly requested by the user.
+
+### 2.3. Text Highlighting Preservation (`==tekst==`)
+- Zawsze analizuj zrzuty ekranu pod kątem obecności żółtego zakreślacza tekstu.
+- Zidentyfikowane fragmenty zaznaczaj w Markdown składnią `==zakreślony tekst==`, zachowując 100% dosłowność tekstu.
+
+### 2.4. Related Links and External URLs Policy (`related:`)
+- Nigdy nie twórz osobnych nagłówków Markdown `# 📓 Powiązane:` ani `# 🔗 Linki:` na końcu notatek.
+- Wszystkie powiązane notatki, normy i linki zewnętrzne umieszczaj w nagłówku YAML w polu `related:`:
+  ```yaml
+  related:
+    - "[[_PN-EN ISO 13849-1 - bezpieczeństwo - systemy sterowania]]"
+    - "[IEC 60417 - 5638, Emergency stop](https://www.iso.org/obp/ui#iec:grs:60417:5638)"
+  ```
+- W treści merytorycznej notatki twórz wyłącznie naturalne linki wikilinks wplecione w zdania.
 
 ---
 
@@ -110,6 +124,8 @@ norm_point_title: Cele bezpieczeństwa w projektowaniu
 norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania związane z bezpieczeństwem. Część 1: Ogólne zasady projektowania."
 norm_title_ENG: "Safety of machinery..."
 norm_note:
+related:
+  - "[[4.3 - określenie PLr]]"
 cssclasses:
   - norma
 ---
@@ -128,6 +144,9 @@ Embed referenced figures and tables via transclusion:
 ```
 
 ### 3.3. Table Note (`<NormNumber> - TABLICA <N> - <Title>.md` or `TABLICA <N> - <Title>.md`)
+> [!IMPORTANT]
+> **NO MARKDOWN HEADINGS IN TABLES**: Table notes MUST NOT contain Markdown headings (`# Tablica...`). The title is already in the note filename and on the SVG card itself. Markdown headings cause unwanted duplicates during transclusions (`![[...]]`).
+
 ```yaml
 ---
 tags:
@@ -141,17 +160,20 @@ norm_table_title: Poziomy zapewnienia bezpieczeństwa PL
 norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania..."
 norm_title_ENG: "Safety of machinery..."
 norm_note:
+related:
+  - "[[4.3 - określenie PLr]]"
 cssclasses:
   - norma
 ---
-# Tablica 2 – Poziomy zapewnienia bezpieczeństwa (PL)
-
 ![[13849-1 - TABLICA 2 - Poziomy zapewnienia bezpieczeństwa (PL).svg|ISO 13849-1 - Tablica 2 – Poziomy zapewnienia bezpieczeństwa (PL)]]
 
 #Safety/OcenaRyzyka/Parametry/PL
 ```
 
 ### 3.4. Drawing / Figure Note (`<NormNumber> - RYSUNEK <N> - <Title>.md` or `RYSUNEK <N> - <Title>.md`)
+> [!IMPORTANT]
+> **NO MARKDOWN HEADINGS IN DRAWINGS**: Drawing notes MUST NOT contain Markdown headings (`# Rysunek...`). The title is already on the vector SVG card and in the note filename. The note body contains strictly the SVG embed and inline tags.
+
 ```yaml
 ---
 tags:
@@ -165,11 +187,11 @@ norm_drawing_title: Schemat oceny ryzyka/zmniejszania ryzyka
 norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania..."
 norm_title_ENG: "Safety of machinery..."
 norm_note:
+related:
+  - "[[4.1 - zasady oceny ryzyka]]"
 cssclasses:
   - norma
 ---
-# Rysunek 1 – Schemat oceny ryzyka/zmniejszania ryzyka
-
 ![[Rysunek 1 - Schemat oceny ryzyka.svg|ISO 13849-1 - Rysunek 1 – Schemat oceny ryzyka/zmniejszania ryzyka]]
 ```
 

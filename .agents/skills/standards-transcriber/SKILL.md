@@ -49,28 +49,43 @@ Skrypt zwróci podsumowanie: ile notatek jest gotowych, które pliki zawierają 
 ### Krok 2: Transkrypcja punktu normy
 Dla wybranej notatki punktu:
 1. Odczytaj oryginalny screen za pomocą `read_file` (lub tekst z PDF).
-2. Przepisz tekst w 100% dosłownie.
-3. Formatuj nagłówek punktu (np. `#### 4.1 Cele bezpieczeństwa w projektowaniu`).
-4. Wykrywaj odniesienia do innych norm i twórz wikilinki Obsidian:
+2. **Detekcja zakreślacza (`==tekst==`):** Zbadaj zrzut ekranu pod kątem obecności żółtego zakreślacza tekstu (np. filtr RGB markera: $R > 210, G > 210, B < 140$). Dokładnie te same fragmenty tekstu zakreślaj w transkrybowanym Markdown za pomocą składni Obsidiana: `==wyróżniony tekst==`.
+3. Przepisz tekst w 100% dosłownie.
+4. Formatuj nagłówek punktu (np. `#### 4.1 Cele bezpieczeństwa w projektowaniu`).
+5. Wykrywaj odniesienia do innych norm i twórz naturalne wikilinki w tekście:
    - np. `zgodnie z wymaganiami [[_14119 - urządzenia ryglujące|ISO 14119]]`
    - np. `patrz [[4.3. Określenie wymaganego PLr]]`
-5. Odwołania do rysunków i tabel osadzaj transkluzją:
+   - Pozostałe powiązane normy, punkty oraz linki zewnętrzne WWW (np. do ISO OBP, IEC) umieszczaj w parametrze YAML `related:` (zakaz tworzenia nagłówków Markdown `# 📓 Powiązane:` oraz `# 🔗 Linki:` w treści notatki).
+6. Odwołania do rysunków i tabel osadzaj transkluzją:
    - `![[13849-1 - RYSUNEK 1 - Schemat oceny ryzyka]]`
    - `![[13849-1 - TABLICA 2 - Poziomy zapewnienia bezpieczeństwa (PL)]]`
-6. Dodaj precyzyjny tag inline na końcu akapitu (np. `#Safety/OcenaRyzyka/Parametry/PL`).
+7. Dodaj precyzyjny tag inline na końcu akapitu (np. `#Safety/OcenaRyzyka/Parametry/PL`).
 
-### Krok 3: Konwersja tabel (Format HTML `<table>`)
-1. **Format tabel:**
-   - Wszystkie tabele twórz w czystym formacie **HTML `<table>`**, aby zachować 100% zgodności z geometrią i układem tabeli w normie.
-   - **Szerokości i wysokości komórek:** Mierz i odtwarzaj proporcjonalne szerokości (`width: %`) oraz minimalne wysokości wierszy (`height: px`) ściśle według skanu.
+### Krok 3: Konwersja tabel (Pipeline HTML -> SVG -> Embed)
+1. **Zatwierdzony tryb postępowania:**
+   - Nie wklejaj surowego, wielostronicowego kodu HTML `<table>` bezpośrednio do notatki docelowej (zaśmieca Markdown i gubi formatowanie w Pandoc GUI LaTeX).
+   - Wszystkie tabele konwertuj w ścisłym potoku:
+     $$\text{HTML } \langle\text{table}\rangle \longrightarrow \text{Wektorowy PDF (Edge headless)} \longrightarrow \text{Czysty SVG (Cairo)} \longrightarrow \text{Osadzenie embed w notatce}$$
+2. **Przygotowanie kodu HTML `<table>`:**
+   - **Geometria i układ:** Mierz i odtwarzaj proporcjonalne szerokości (`width: %`) oraz minimalne wysokości wierszy (`height: px`) ściśle według skanu.
    - **Scalenia (`rowspan` / `colspan`):** Odwzorowuj wielopoziomowe nagłówki oraz scalone komórki części ciała i miniatur.
-   - **Grube linie graniczne:** Zgodnie z normą wyróżniaj granice stref wymiarowych za pomocą styli CSS (`border-top: 2.5px solid var(--text-normal, #111);`, `border-right: ...`).
-   - Indeksy i wzory matematyczne formatuj w KaTeX (np. `$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
-2. **Tabele z piktogramami / miniaturami:**
-   - Zastosuj **złotą zasadę rycin**: *„Grafika ma być taka sama tylko z wyższą rozdzielczością, bez szarego pod spodem i z czytelnymi opisami”*.
-   - Kategoryczny zakaz generowania grafiki przez modele AI (diffusion/Imagen) — halucynują one wymiary i geometrię.
-   - Oczyść raster ze skanu (odcięcie szarości i znaków wodnych PKN/WBY do czystej bieli `#ffffff`, powiększenie 4x High-DPI z wyostrzeniem krawędzi).
-   - W komórce tabeli osadzaj oczyszczony wektor lub High-DPI raster: `![[Tablica X - Nazwa.svg|140]]` z zachowaniem procedury **Stop & Review**.
+   - **Stylizacja nagłówka tabeli:**
+     - Tytuł tabeli w jednym wierszu (`font-size: ~0.98em`, `font-weight: 700`, bez zawijania tekstu).
+     - Komórka tytułowa (`<th>`) z `border-top: hidden !important; border-left: hidden !important; border-right: hidden !important; border-bottom: 2.5px solid #111111 !important; padding: 10px 4px 5px 4px;`.
+     - *Wymiary w milimetrach* wyrównane do prawej pod tytułem.
+   - **Grube linie graniczne:** Zgodnie z normą wyróżniaj granice stref wymiarowych za pomocą styli CSS (`border-top: 2.5px solid #111;`, `border-right: ...`).
+   - **Wzory i zmienne:** Formatuj zmienne matematyczne, indeksy i nierówności w LaTeX/KaTeX (`$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
+   - **Miniatury i piktogramy:** Osadzaj oczyszczone miniatury High-DPI lub wektory SVG bezpośrednio w komórkach (z czystym tłem `#ffffff` bez znaków wodnych).
+3. **Kompilacja tabeli HTML do pliku SVG:**
+   - Użyj skryptu `scripts/render_table_to_svg.py` lub wykonaj polecenia:
+     1. Wydruk HTML do PDF: `msedge --headless --no-pdf-header-footer --print-to-pdf=<plik.pdf> <plik.html>` z dopasowanym `@page { size: ...; margin: 3mm; }`.
+     2. Konwersja do SVG: `pdftocairo -svg <plik.pdf> <plik.svg>`.
+   - Zapisz wygenerowany plik `.svg` w folderze `Attachments/` danej normy.
+4. **Osadzenie w notatce z podpisem (Embed Caption Convention):**
+   - W notatce tabeli wstaw czysty embed z podpisem wg wzorca:
+     `![[Tablica X - Nazwa.svg|<Skrót Normy> - Tablica X – Tytuł]]`
+     np.: `![[Tablica 4 - sięganie przez otwory o regularnym kształcie - od 14lat.svg|ISO 13857 - Tablica 4 – Sięganie przez otwory o regularnym kształcie – Osoby w wieku od 14 lat]]`
+   - **Kategoryczny zakaz dodawania nagłówków Markdown (`# ...`)**: Notatka tabeli nie może zawierać nagłówka Markdown `# Tablica...` (tytuł tabeli znajduje się już w nazwie pliku oraz na wyrenderowanej karcie SVG tabeli). Notatka zawiera wyłącznie czysty embed SVG oraz tagi.
 
 ### Krok 4: Przerysowanie / rekonstrukcja rysunku i pętla Stop & Review
 1. **Wybór metody rekonstrukcji:**
@@ -90,15 +105,21 @@ Dla wybranej notatki punktu:
    - Zapytaj: *"Czy zatwierdzasz grafikę / tabelę SVG dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*.
 5. Po zatwierdzeniu:
    - Zapisz plik `Rysunek X - Tytuł.svg` w folderze `Attachments/` danej normy.
-   - W notatce `RYSUNEK X...md` wstaw odwołanie: `![[Rysunek X - Tytuł.svg|800]]`.
-6. **Brak duplikacji objaśnień (Zasada czystego widoku):** Jeśli objaśnienia/legenda rysunku (np. $a$, $b$, $c$, 1, 2, 3) są już zawarte wewnątrz wektora SVG na karcie graficznej, **nie przepisuj ich ponownie w treści notatki Markdown pod rysunkiem** – notatka rysunku zawiera wyłącznie osadzenie wektora `![[...svg|800]]` oraz tag.
+   - W notatce `RYSUNEK X...md` wstaw odwołanie z podpisem:
+     `![[Rysunek X - Tytuł.svg|<Skrót Normy> - Rysunek X – Tytuł]]`
+     np.: `![[Rysunek 2 - Sięganie ponad konstrukcją ochronną.svg|ISO 13857 - Rysunek 2 – Sięganie ponad konstrukcją ochronną]]`
+6. **Kategoryczny zakaz nagłówków Markdown (`# ...`) i brak duplikacji objaśnień (Zasada czystego widoku):**
+   - W notatkach rysunków **kategorycznie zabrania się dodawania nagłówków Markdown (`# ...`)** (tytuł rysunku jest zawarty bezpośrednio na karcie graficznej SVG oraz w nazwie pliku notatki; nagłówki Markdown powodują niepotrzebną duplikację przy transkluzjach `![[...]]`).
+   - Jeśli objaśnienia/legenda rysunku (np. $a$, $b$, $c$, 1, 2, 3) są już zawarte wewnątrz wektora SVG na karcie graficznej, **nie przepisuj ich ponownie w treści notatki Markdown pod rysunkiem**.
+   - Notatka rysunku zawiera wyłącznie frontmatter YAML, czyste osadzenie wektora z podpisem oraz tagi inline na końcu.
 
 ### Krok 5: Uzupełnienie metadanych YAML
 Upewnij się, że notatka zawiera komplet pól wymaganych przez `Normy.base` oraz klasę stylów:
 - **Obowiązkowa klasa cssclasses:** Wszystkie notatki punktów, tablic i rysunków muszą posiadać `cssclasses:\n  - norma`. **Kategoryczny zakaz dodawania klasy `norma` do głównej notatki indeksowej normy (`_*.md`)!** Notatka główna/indeksowa posiada wyłącznie `cssclasses:\n  - wide`, aby nie zaburzać renderowania widoków baz `.base`.
-- **Punkt:** `norm_number`, `norm_point`, `norm_point_title`, `norm_title_PL` (lub `norm_title_ENG` dla norm angielskich), `index: ["[[_NotatkaGlowna]]"]`, `tags: [...]`, `cssclasses: [norma]`.
-- **Tablica:** `norm_number`, `norm_table`, `norm_table_title`, `norm_title_PL` (lub `ENG`), `index`, `tags`, `cssclasses: [norma]`.
-- **Rysunek:** `norm_number`, `norm_drawing`, `norm_drawing_title`, `norm_title_PL` (lub `ENG`), `index`, `tags`, `cssclasses: [norma]`.
+- **Punkt:** `norm_number`, `norm_point`, `norm_point_title`, `norm_title_PL` (lub `norm_title_ENG` dla norm angielskich), `index: ["[[_NotatkaGlowna]]"]`, `related: ["[[...]]", "[Link](URL)"]`, `tags: [...]`, `cssclasses: [norma]`.
+- **Tablica:** `norm_number`, `norm_table`, `norm_table_title`, `norm_title_PL` (lub `ENG`), `index`, `related`, `tags`, `cssclasses: [norma]`.
+- **Rysunek:** `norm_number`, `norm_drawing`, `norm_drawing_title`, `norm_title_PL` (lub `ENG`), `index`, `related`, `tags`, `cssclasses: [norma]`.
+- **Standard parametru `related:` w YAML:** Wszystkie powiązane notatki, normy oraz linki zewnętrzne WWW (np. ISO OBP) umieszczaj wyłącznie w liście `related:`. Obowiązuje **kategoryczny zakaz tworzenia nagłówków Markdown `# 📓 Powiązane:` oraz `# 🔗 Linki:` w treści notatki**.
 
 ### Krok 6: Weryfikacja jakościowa
 Uruchom skrypt walidacyjny:
@@ -107,6 +128,14 @@ python "<ścieżka_do_skilla>/scripts/verify_transcription.py" --file "<ścieżk
 ```
 Upewnij się, że nie ma błędów krytycznych ani niezgodności z taksonomią tagów.
 
+### Krok 7: Higiena i czyszczenie folderu `Attachments/` (Procedura Stop & Verify)
+Po ukończeniu i zatwierdzeniu transkrypcji wszystkich punktów, tabel i rysunków w normie:
+1. Przeskanuj folder `Attachments/` pod kątem nieużywanych, osieroconych plików graficznych raster (`.png`, `.jpg`), które zostały zastąpione przez czysty tekst, tabele lub wektory `.svg`.
+2. **Kategoryczny zakaz automatycznego usuwania plików bez zgody:**
+   - Przygotuj i przedstaw użytkownikowi w oknie czatu dokładną listę plików planowanych do usunięcia (wraz z informacją o ich rozmiarze i braku referencji w notatkach normy).
+   - Zapytaj: *"Czy autoryzujesz usunięcie powyższych X nieużywanych plików z folderu Attachments?"*
+3. Dopiero po uzyskaniu jednoznacznej autoryzacji użytkownika (np. „autoryzuję”, „zatwierdzam”) wykonaj bezpieczne usunięcie plików.
+
 ---
 
 ## 🛠️ Narzędzia pomocnicze w katalogu `scripts/`
@@ -114,4 +143,5 @@ Upewnij się, że nie ma błędów krytycznych ani niezgodności z taksonomią t
 - `scan_norm.py` – Inwentaryzacja i stan transkrypcji wybranej normy.
 - `tags_catalog.json` – Kompletny słownik ponad 210 zatwierdzonych tagów w skarbcu.
 - `svg_generator.py` – Szablony inżynierskie SVG oraz walidator poprawności XML z automatycznym escapowaniem `<, >, &`.
+- `render_table_to_svg.py` – Deterministyczna kompilacja tabel HTML do wektorowego SVG/PDF/PNG przez Chromium headless i pdftocairo.
 - `verify_transcription.py` – Audyt zgodności notatki z bazami `.base`, obsługa formatów list YAML oraz braku osieroconych zrzutów ekranu.
