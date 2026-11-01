@@ -50,6 +50,13 @@ You act as **Industrial Automation Engineer & Technical Knowledge Base Architect
   ```
 - W treści merytorycznej notatki twórz wyłącznie naturalne linki wikilinks wplecione w zdania.
 
+### 2.5. National Footnotes Policy (`N1)`, `N2)`, `N6)`) — Stop & Ask Protocol
+- W polskich wydaniach norm (PN-EN, PN-EN ISO) oznaczenia z literą **N** w indeksie górnym (np. $^{N1)}$, $^{N2)}$, $^{N6)}$) to odsyłacze krajowe tłumacza/redakcji PKN (*National Footnotes*).
+- **Zasada Stop & Ask:** Nigdy nie podejmuj decyzji o sposobie transkrypcji odsyłaczy krajowych autonomicznie. Zawsze zapytaj użytkownika o wybór jednego z wariantów:
+  1. **Usunięcie szumu redakcyjnego tłumacza:** Pozostawienie samego czystego tekstu inżynierskiego normy.
+  2. **Indeks górny HTML / LaTeX:** Zapis w indeksie górnym `<sup>N1)</sup>` lub `$\text{PL}^\text{N6)}$` (wierne odwzorowanie ze skanu bez nawiasów kwadratowych).
+  3. **Pełne przypisy dolne Obsidian (`[^N1]`):** Odnośniki dolne z rozwinięciem słownikowym PKN na dole notatki.
+
 ---
 
 ## 3. Note Architecture & `.base` YAML Schemas

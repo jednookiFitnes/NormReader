@@ -34,6 +34,8 @@ Rozwiązuje dwa główne zadania:
    - Jeżeli pojawia się potrzeba dodania nowego tagu – **zawsze najpierw zapytaj użytkownika o zgodę**.
 5. **Nienaruszalność kluczy bazy (`norm_in_possesion`):**
    - W notatkach indeksowych zachowuj dokładną nazwę właściwości `norm_in_possesion: true` (przez jedno `s`) wymaganą przez `Normy.base`. Nigdy nie zamieniaj jej na `norm_in_possession`.
+6. **Odsyłacze krajowe tłumacza PKN (Stop & Ask):**
+   - Gdy na skanach polskich norm (PN-EN, PN-EN ISO) pojawią się odsyłacze krajowe tłumacza oznaczone literą N (np. $^{N1)}$, $^{N2)}$, $^{N6)}$), nie podejmuj decyzji autonomicznie. Zawsze zapytaj użytkownika o wybór wariantu: (1) usunięcie szumu redakcyjnego tłumacza, (2) indeks górny HTML (`<sup>N1)</sup>`), czy (3) pełne przypisy Obsidian (`[^N1]`).
 
 ---
 
@@ -49,7 +51,9 @@ Skrypt zwróci podsumowanie: ile notatek jest gotowych, które pliki zawierają 
 ### Krok 2: Transkrypcja punktu normy
 Dla wybranej notatki punktu:
 1. Odczytaj oryginalny screen za pomocą `read_file` (lub tekst z PDF).
-2. **Detekcja zakreślacza (`==tekst==`):** Zbadaj zrzut ekranu pod kątem obecności żółtego zakreślacza tekstu (np. filtr RGB markera: $R > 210, G > 210, B < 140$). Dokładnie te same fragmenty tekstu zakreślaj w transkrybowanym Markdown za pomocą składni Obsidiana: `==wyróżniony tekst==`.
+2. **Detekcja zakreślacza (`==tekst==`) oraz odsyłaczy krajowych ($N$):**
+   - Zbadaj zrzut ekranu pod kątem obecności żółtego zakreślacza tekstu (np. filtr RGB markera: $R > 210, G > 210, B < 140$). Dokładnie te same fragmenty tekstu zakreślaj w transkrybowanym Markdown za pomocą składni Obsidiana: `==wyróżniony tekst==`.
+   - Zidentyfikuj ewentualne odsyłacze krajowe tłumacza PKN ($^{N1)}$, $^{N6)}$) i zapytaj użytkownika o pożądany wariant formatowania przed zapisaniem notatki.
 3. Przepisz tekst w 100% dosłownie.
 4. Formatuj nagłówek punktu (np. `#### 4.1 Cele bezpieczeństwa w projektowaniu`).
 5. Wykrywaj odniesienia do innych norm i twórz naturalne wikilinki w tekście:
