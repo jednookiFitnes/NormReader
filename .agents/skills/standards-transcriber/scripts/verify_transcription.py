@@ -194,7 +194,8 @@ def verify_note(filepath, approved_tags):
     if is_table:
         has_md_table = bool(re.search(r'\|.*?\|.*?\|\r?\n\|(?:\s*[:-]+[-| :]*)\|\r?\n\|.*?\|', body))
         has_html_table = "<table" in body.lower()
-        if not (has_md_table or has_html_table):
+        has_pdf_table = bool(re.search(r'!\[\[.*?\.(?:pdf|svg)(?:\|.*?)?\]\]', body))
+        if not (has_md_table or has_html_table or has_pdf_table):
             warnings.append("Notatka tablicy nie zawiera wykrytej tabeli Markdown ani HTML <table>")
 
     return (len(issues) == 0), issues, warnings

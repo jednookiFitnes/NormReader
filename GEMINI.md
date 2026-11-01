@@ -129,12 +129,14 @@ norm_table_title: Poziomy zapewnienia bezpieczeństwa PL
 norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania..."
 norm_title_ENG: "Safety of machinery..."
 norm_note:
+cssclasses:
+  - norma
 ---
 # Tablica 2 – Poziomy zapewnienia bezpieczeństwa (PL)
 
-| PL | Średnie prawdopodobieństwo wystąpienia uszkodzenia niebezpiecznego na godzinę ($PFH_D$)<br>[1/h] |
-| :---: | :---: |
-| **a** | $\ge 10^{-5}\text{ do }< 10^{-4}$ |
+![[13849-1 - TABLICA 2 - Poziomy zapewnienia bezpieczeństwa (PL).svg|ISO 13849-1 - Tablica 2 – Poziomy zapewnienia bezpieczeństwa (PL)]]
+
+#Safety/OcenaRyzyka/Parametry/PL
 ```
 
 ### 3.4. Drawing / Figure Note (`<NormNumber> - RYSUNEK <N> - <Title>.md` or `RYSUNEK <N> - <Title>.md`)
@@ -154,25 +156,35 @@ norm_note:
 ---
 # Rysunek 1 – Schemat oceny ryzyka/zmniejszania ryzyka
 
-![[Rysunek 1 - Schemat oceny ryzyka.svg|800]]
-
-a Odwołanie do ISO 12100:2010
-b Odwołanie do niniejszej części ISO 13849
+![[Rysunek 1 - Schemat oceny ryzyka.svg|ISO 13849-1 - Rysunek 1 – Schemat oceny ryzyka/zmniejszania ryzyka]]
 ```
 
 ---
 
 ## 4. Table & Formula Conversion Standards
 
-1. **Format tabel (HTML `<table>`)**:
-   - Wszystkie tabele tworzone są w **formacie HTML `<table>`**, aby zachować 100% zgodności z układem geometrycznym normy.
-   - **Szerokości i wysokości komórek**: Zachowuj proporcjonalne szerokości (`width: ...%`) oraz wysokości wierszy (`height: ...px`) komórek ściśle według oryginalnej tabeli ze skanu.
-   - **Scalenia i hierarchia nagłówków**: Stosuj `rowspan` i `colspan` dla wielopoziomowych nagłówków i powtarzających się wartości.
-   - **Grube linie graniczne**: Obramowania wyróżniające strefy graniczne części ciała wykonuj w stylach CSS (np. `border-top: 2.5px solid var(--text-normal, #111);`, `border-right: ...`).
-   - **Wzory i zmienne**: Formatuj zmienne matematyczne, indeksy i nierówności w LaTeX/KaTeX (`$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
-2. **Tabele z piktogramami / miniaturami**:
-   - Osadzaj oczyszczone miniatury High-DPI lub wektory SVG bezpośrednio w komórkach: `![[Tablica 4 - Czubek palca.svg\|140]]`.
-   - Zapewnij pionowe i poziome wyśrodkowanie: `text-align: center; vertical-align: middle; padding: 6px;`.
+1. **Obowiązkowy pipeline konwersji tabel (HTML -> SVG -> Embed)**:
+   - **Krok A — Kodowanie geometrii HTML `<table>`**: Wszystkie tabele tworzone są początkowo w **formacie HTML `<table>`**, aby precyzyjnie odwzorować układ geometryczny normy:
+     - **Szerokości i wysokości komórek**: Zachowuj proporcjonalne szerokości (`width: ...%`) oraz minimalne wysokości wierszy (`height: ...px`) komórek ściśle według oryginalnej tabeli ze skanu.
+     - **Scalenia i hierarchia nagłówków**: Stosuj `rowspan` i `colspan` dla wielopoziomowych nagłówków i powtarzających się wartości.
+     - **Grube linie graniczne**: Obramowania wyróżniające strefy graniczne części ciała wykonuj w stylach CSS (np. `border-top: 2.5px solid var(--text-normal, #111);`, `border-right: ...`).
+     - **Wzory i zmienne**: Formatuj zmienne matematyczne, indeksy i nierówności w LaTeX/KaTeX (`$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
+     - **Miniatury i piktogramy**: W komórkach osadzaj oczyszczone miniatury High-DPI lub wektory SVG: `![[Tablica 4 - Czubek palca.svg|140]]` (lub inline SVG).
+   - **Krok B — Stylizacja nagłówka tabeli**:
+     - Tytuł tabeli w jednym wierszu (`font-size: ~0.98em`, `font-weight: 700`, bez zawijania wierszy).
+     - Komórka tytułowa (`<th>`) z `border-top: hidden !important; border-left: hidden !important; border-right: hidden !important; border-bottom: 2.5px solid #111111 !important;`.
+     - *Wymiary w milimetrach* wyrównane do prawej pod tytułem.
+   - **Krok C — Kompilacja do wektora SVG**:
+     - Wyrenderuj HTML do PDF za pomocą silnika Chromium/Edge headless:
+       `msedge --headless --no-pdf-header-footer --print-to-pdf=<plik.pdf> <plik.html>` ze zwartym kadrem `@page { size: ...; margin: 3mm; }`.
+     - Przekonwertuj wektorowy PDF do czystego SVG za pomocą `pdftocairo -svg <plik.pdf> <plik.svg>`.
+     - Zapisz plik `.svg` w podfolderze `Attachments/` normy.
+   - **Krok D — Osadzenie z podpisem w notatce Markdown**:
+     - W notatce tabeli umieszczaj wyłącznie embed SVG z podpisem:
+       `![[Nazwa_Tabeli.svg|<Skrót Normy> - <Numer i tytuł tabeli>]]`
+       np.: `![[Tablica 4 - sięganie przez otwory o regularnym kształcie - od 14lat.svg|ISO 13857 - Tablica 4 – Sięganie przez otwory o regularnym kształcie – Osoby w wieku od 14 lat]]`
+2. **Zakaz wklejania surowego kodu HTML do treści notatki**:
+   - Nie umieszczaj wielkich bloków kodu HTML `<table>` bezpośrednio w notatce docelowej (powoduje to utratę formatowania w Pandoc GUI LaTeX oraz zaśmieca notatkę). Zastępuj je czystym osadzeniem wektorowym SVG.
 
 ---
 
@@ -189,8 +201,12 @@ Every technical figure, block diagram, or table thumbnail must adhere to the fol
    - **Step B — High-DPI Upscaling (4x)**: Upscale the cleaned bitmap using high-order Lanczos/Bicubic resampling with edge sharpening to ensure crisp rendering on 4K/Retina displays and in PDF prints.
    - **Step C — Format Selection**: Save either as High-DPI PNG or as a clean spline SVG (via VTracer on the cleaned binary bitmap).
    - **Step D — Mechanical / Block Diagrams (CAD-SVG)**: For purely geometric, dimensional schematics (such as Rysunek 2), Multimodal LLM Vision-to-CAD authoring with 3 layers (canvas/hatch, contours, ISO 129 dimensions) remains valid.
-4. **Zero Legend Duplication**:
-   - When labels, dimension definitions ($a, b, c$), and legend items ($1, 2, 3$) are already legibly present inside the figure or drawing card, **do NOT duplicate them as text underneath the image**.
+4. **Zasada podpisywania rycin i tablic (Embed Caption Convention)**:
+   - Wszystkie rysunki i tabele osadzaj w notatkach z jawnym podpisem w formacie:
+     `![[plik.svg|<Skrót Normy> - <Numer i tytuł>]]`
+     np.: `![[Rysunek 2 - Sięganie ponad konstrukcją ochronną.svg|ISO 13857 - Rysunek 2 – Sięganie ponad konstrukcją ochronną]]`
+     lub: `![[Tablica 4 - sięganie przez otwory o regularnym kształcie - od 14lat.svg|ISO 13857 - Tablica 4 – Sięganie przez otwory o regularnym kształcie – Osoby w wieku od 14 lat]]`
+   - **Zero Legend Duplication**: Gdy etykiety lub objaśnienia oznaczeń ($a, b, c$, $1, 2, 3$) znajdują się bezpośrednio na karcie rysunku/tabeli, **nie powielaj ich w tekście Markdown notatki**.
 5. **PDF Vector Extraction First (When Source PDF Exists)**:
    - If the vector source PDF of the standard is present in the folder, first attempt direct lossless vector extraction via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"`.
 6. **STOP & REVIEW Gate**:
