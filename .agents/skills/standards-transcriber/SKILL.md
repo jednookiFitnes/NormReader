@@ -95,7 +95,7 @@ Dla wybranej notatki punktu:
 
 ### Krok 5: Uzupełnienie metadanych YAML
 Upewnij się, że notatka zawiera komplet pól wymaganych przez `Normy.base` oraz klasę stylów:
-- **Obowiązkowa klasa cssclasses:** Wszystkie notatki punktów, tablic i rysunków muszą posiadać `cssclasses:\n  - norma`.
+- **Obowiązkowa klasa cssclasses:** Wszystkie notatki punktów, tablic i rysunków muszą posiadać `cssclasses:\n  - norma`. **Kategoryczny zakaz dodawania klasy `norma` do głównej notatki indeksowej normy (`_*.md`)!** Notatka główna/indeksowa posiada wyłącznie `cssclasses:\n  - wide`, aby nie zaburzać renderowania widoków baz `.base`.
 - **Punkt:** `norm_number`, `norm_point`, `norm_point_title`, `norm_title_PL` (lub `norm_title_ENG` dla norm angielskich), `index: ["[[_NotatkaGlowna]]"]`, `tags: [...]`, `cssclasses: [norma]`.
 - **Tablica:** `norm_number`, `norm_table`, `norm_table_title`, `norm_title_PL` (lub `ENG`), `index`, `tags`, `cssclasses: [norma]`.
 - **Rysunek:** `norm_number`, `norm_drawing`, `norm_drawing_title`, `norm_title_PL` (lub `ENG`), `index`, `tags`, `cssclasses: [norma]`.

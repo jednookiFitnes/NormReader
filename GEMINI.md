@@ -43,12 +43,16 @@ You act as **Industrial Automation Engineer & Technical Knowledge Base Architect
 Every note must contain valid YAML frontmatter matching the `Normy.base` / `Dyrektywy.base` / `PrawoPL.base` schema.
 - **Quoted Wikilinks**: Every wikilink inside YAML **must** be wrapped in double quotes (e.g., `index: ["[[_PN-EN ISO 13849-1]]"]`).
 - **Exact Property Names**: Preserve exact YAML property keys required by `.base` files (including the legacy spelling `norm_in_possesion: true` with a single `s` in the index note).
-- **Mandatory CSS Class (`cssclasses: [norma]`)**: All notes in standards folders (clauses/points, tables, drawings) **must** define `cssclasses:` containing `norma`:
+- **Mandatory CSS Class for Content Notes (`cssclasses: [norma]`)**: All content notes in standards folders (clauses/points, tables, drawings) **must** define `cssclasses:` containing `norma`:
   ```yaml
   cssclasses:
     - norma
   ```
-  (Index notes may specify `wide` and `norma`).
+- **CRITICAL — Never Add `norma` to Main Index Note**: The main standard index note (`_<NormNumber> - <Title>.md`), which embeds databases (`Normy.base`), **must NEVER** have the `norma` class (which would break the database table view layout). It uses exclusively:
+  ```yaml
+  cssclasses:
+    - wide
+  ```
 
 ### 3.1. Standard Index Note (`_<NormNumber> - <Title>.md`)
 Location: Root folder of the standard in `31 - Notes - Normy\<Number> - <Title>\`.

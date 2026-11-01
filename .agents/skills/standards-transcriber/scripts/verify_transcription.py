@@ -148,6 +148,13 @@ def verify_note(filepath, approved_tags):
                 classes = [c.strip().lstrip("-").strip() for c in css_match.group(1).splitlines() if c.strip()]
                 if "norma" not in classes:
                     warnings.append("Właściwość 'cssclasses' nie zawiera klasy 'norma' (wymagane 'cssclasses: [norma]')")
+    else:
+        # Główna notatka normy nie może zawierać klasy 'norma'
+        css_match = re.search(r"cssclasses:\r?\n(.*?)(?=\r?\n[a-zA-Z0-9_-]+:|\Z)", yaml_text, re.DOTALL)
+        if css_match:
+            classes = [c.strip().lstrip("-").strip() for c in css_match.group(1).splitlines() if c.strip()]
+            if "norma" in classes:
+                issues.append("BŁĄD: Główna notatka normy nie może zawierać klasy 'norma' (wymagane wyłącznie 'wide')")
 
     # 3. Check tags (Unicode support)
     note_tags = set()
