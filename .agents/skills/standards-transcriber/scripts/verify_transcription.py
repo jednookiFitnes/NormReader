@@ -138,6 +138,17 @@ def verify_note(filepath, approved_tags):
             if req not in yaml_keys:
                 issues.append(f"Rysunek wymaga pola YAML '{req}' dla widoku Normy.base")
 
+    # Check cssclasses: norma
+    if not is_index:
+        if "cssclasses" not in yaml_keys:
+            warnings.append("Brak właściwości 'cssclasses' w YAML (wymagane 'cssclasses: [norma]')")
+        else:
+            css_match = re.search(r"cssclasses:\r?\n(.*?)(?=\r?\n[a-zA-Z0-9_-]+:|\Z)", yaml_text, re.DOTALL)
+            if css_match:
+                classes = [c.strip().lstrip("-").strip() for c in css_match.group(1).splitlines() if c.strip()]
+                if "norma" not in classes:
+                    warnings.append("Właściwość 'cssclasses' nie zawiera klasy 'norma' (wymagane 'cssclasses: [norma]')")
+
     # 3. Check tags (Unicode support)
     note_tags = set()
     tags_match = re.search(r"tags:\r?\n(.*?)(?=\r?\n[a-zA-Z0-9_-]+:|\Z)", yaml_text, re.DOTALL)

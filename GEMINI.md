@@ -43,6 +43,12 @@ You act as **Industrial Automation Engineer & Technical Knowledge Base Architect
 Every note must contain valid YAML frontmatter matching the `Normy.base` / `Dyrektywy.base` / `PrawoPL.base` schema.
 - **Quoted Wikilinks**: Every wikilink inside YAML **must** be wrapped in double quotes (e.g., `index: ["[[_PN-EN ISO 13849-1]]"]`).
 - **Exact Property Names**: Preserve exact YAML property keys required by `.base` files (including the legacy spelling `norm_in_possesion: true` with a single `s` in the index note).
+- **Mandatory CSS Class (`cssclasses: [norma]`)**: All notes in standards folders (clauses/points, tables, drawings) **must** define `cssclasses:` containing `norma`:
+  ```yaml
+  cssclasses:
+    - norma
+  ```
+  (Index notes may specify `wide` and `norma`).
 
 ### 3.1. Standard Index Note (`_<NormNumber> - <Title>.md`)
 Location: Root folder of the standard in `31 - Notes - Normy\<Number> - <Title>\`.
@@ -100,6 +106,8 @@ norm_point_title: Cele bezpieczeństwa w projektowaniu
 norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania związane z bezpieczeństwem. Część 1: Ogólne zasady projektowania."
 norm_title_ENG: "Safety of machinery..."
 norm_note:
+cssclasses:
+  - norma
 ---
 #### 4.1 Cele bezpieczeństwa w projektowaniu
 
@@ -153,6 +161,8 @@ norm_drawing_title: Schemat oceny ryzyka/zmniejszania ryzyka
 norm_title_PL: "Bezpieczeństwo maszyn. Elementy systemów sterowania..."
 norm_title_ENG: "Safety of machinery..."
 norm_note:
+cssclasses:
+  - norma
 ---
 # Rysunek 1 – Schemat oceny ryzyka/zmniejszania ryzyka
 
@@ -209,10 +219,11 @@ Every technical figure, block diagram, or table thumbnail must adhere to the fol
    - **Zero Legend Duplication**: Gdy etykiety lub objaśnienia oznaczeń ($a, b, c$, $1, 2, 3$) znajdują się bezpośrednio na karcie rysunku/tabeli, **nie powielaj ich w tekście Markdown notatki**.
 5. **PDF Vector Extraction First (When Source PDF Exists)**:
    - If the vector source PDF of the standard is present in the folder, first attempt direct lossless vector extraction via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"`.
-6. **STOP & REVIEW Gate (Prezentacja porównawcza bezpośrednio w Antigravity)**:
-   - Zawsze przedstawiaj zestawienie porównawcze **bezpośrednio w interfejsie Antigravity** (oryginalna tabela/screen zestawiona z wygenerowaną tabelą Markdown/HTML lub karuzelą/podglądem SVG), aby użytkownik mógł natychmiast zweryfikować treść, układ i geometrię bezpośrednio w czacie bez szukania plików.
+6. **STOP & REVIEW Gate (Prezentacja porównawcza: Oryginalna grafika vs Końcowa grafika SVG)**:
+   - Zestawienie porównawcze przedstawiaj **bezpośrednio w oknie czatu Antigravity** wyłącznie w formule: **oryginalna grafika (zrzut ekranu/skan) vs końcowa grafika wektorowa SVG** (np. za pomocą karuzeli ````carousel lub osadzonych obok siebie obrazów `![Oryginał](...)` vs `![Końcowy SVG](...)`).
+   - **Kategoryczny zakaz prezentowania stanów pośrednich**: Użytkownika nie interesują wersje robocze, surowy kod HTML `<table>` ani tabele pośrednie — porównanie dotyczy wyłącznie ostatecznego wektora SVG z oryginalnym skanem.
    - Zapytaj:
-     > *"Czy zatwierdzasz grafikę / tabelę dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*
+     > *"Czy zatwierdzasz grafikę / tabelę SVG dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*
    - Zapisz docelowy plik w `Attachments/` i utrwal link w notatce dopiero po akceptacji użytkownika.
 
 ---

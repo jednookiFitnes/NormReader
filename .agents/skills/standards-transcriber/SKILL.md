@@ -84,19 +84,21 @@ Dla wybranej notatki punktu:
    ```powershell
    python scripts/svg_generator.py --validate "<ścieżka.svg>"
    ```
-4. **Zaprezentuj zestawienie użytkownikowi bezpośrednio w Antigravity:**
-   - Wyświetl tabelę porównawczą lub zestawienie podglądu bezpośrednio w czacie Antigravity (np. oryginalna tabela vs wyrenderowana tabela Markdown/HTML lub karuzela), aby użytkownik mógł natychmiast zweryfikować treść i geometrię bez szukania plików.
-   - Zapytaj: *"Czy zatwierdzasz przerysowany Rysunek / Tablicę X, czy wprowadzić poprawki?"*.
+4. **Zaprezentuj zestawienie użytkownikowi bezpośrednio w Antigravity (Tylko Oryginał vs Końcowy SVG):**
+   - Wyświetl porównanie bezpośrednio w czacie Antigravity wyłącznie jako: **oryginalna grafika (zrzut ekranu/skan) vs końcowa grafika wektorowa SVG** (np. za pomocą karuzeli lub side-by-side).
+   - Zakaz prezentowania stanów pośrednich (np. roboczego kodu HTML, tabel roboczych).
+   - Zapytaj: *"Czy zatwierdzasz grafikę / tabelę SVG dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*.
 5. Po zatwierdzeniu:
    - Zapisz plik `Rysunek X - Tytuł.svg` w folderze `Attachments/` danej normy.
    - W notatce `RYSUNEK X...md` wstaw odwołanie: `![[Rysunek X - Tytuł.svg|800]]`.
 6. **Brak duplikacji objaśnień (Zasada czystego widoku):** Jeśli objaśnienia/legenda rysunku (np. $a$, $b$, $c$, 1, 2, 3) są już zawarte wewnątrz wektora SVG na karcie graficznej, **nie przepisuj ich ponownie w treści notatki Markdown pod rysunkiem** – notatka rysunku zawiera wyłącznie osadzenie wektora `![[...svg|800]]` oraz tag.
 
 ### Krok 5: Uzupełnienie metadanych YAML
-Upewnij się, że notatka zawiera komplet pól wymaganych przez `Normy.base`:
-- **Punkt:** `norm_number`, `norm_point`, `norm_point_title`, `norm_title_PL` (lub `norm_title_ENG` dla norm angielskich), `index: ["[[_NotatkaGlowna]]"]`, `tags: [...]`.
-- **Tablica:** `norm_number`, `norm_table`, `norm_table_title`, `norm_title_PL` (lub `ENG`), `index`, `tags`.
-- **Rysunek:** `norm_number`, `norm_drawing`, `norm_drawing_title`, `norm_title_PL` (lub `ENG`), `index`, `tags`.
+Upewnij się, że notatka zawiera komplet pól wymaganych przez `Normy.base` oraz klasę stylów:
+- **Obowiązkowa klasa cssclasses:** Wszystkie notatki punktów, tablic i rysunków muszą posiadać `cssclasses:\n  - norma`.
+- **Punkt:** `norm_number`, `norm_point`, `norm_point_title`, `norm_title_PL` (lub `norm_title_ENG` dla norm angielskich), `index: ["[[_NotatkaGlowna]]"]`, `tags: [...]`, `cssclasses: [norma]`.
+- **Tablica:** `norm_number`, `norm_table`, `norm_table_title`, `norm_title_PL` (lub `ENG`), `index`, `tags`, `cssclasses: [norma]`.
+- **Rysunek:** `norm_number`, `norm_drawing`, `norm_drawing_title`, `norm_title_PL` (lub `ENG`), `index`, `tags`, `cssclasses: [norma]`.
 
 ### Krok 6: Weryfikacja jakościowa
 Uruchom skrypt walidacyjny:
