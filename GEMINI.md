@@ -57,6 +57,14 @@ You act as **Industrial Automation Engineer & Technical Knowledge Base Architect
   2. **Indeks górny HTML / LaTeX:** Zapis w indeksie górnym `<sup>N1)</sup>` lub `$\text{PL}^\text{N6)}$` (wierne odwzorowanie ze skanu bez nawiasów kwadratowych).
   3. **Pełne przypisy dolne Obsidian (`[^N1]`):** Odnośniki dolne z rozwinięciem słownikowym PKN na dole notatki.
 
+### 2.6. Formatowanie uwag normatywnych (`> [!warning] Uwaga`)
+- Wszelkie uwagi zawarte w treści normatywnej (`UWAGA`, `UWAGA 1`, `UWAGA do hasła:`, `NOTE`) muszą być transkrybowane jako callout ostrzegawczy:
+  ```markdown
+  > [!warning] Uwaga
+  > Treść uwagi z zachowaniem 100% dosłowności...
+  ```
+- Kategoryczny zakaz pozostawiania uwag jako zwykłego akapitu tekstu lub calloutu ogólnego `> [!NOTE]` (rezerwowanego wyłącznie dla komentarzy inżynierskich Trinitec).
+
 ---
 
 ## 3. Note Architecture & `.base` YAML Schemas
@@ -231,6 +239,20 @@ cssclasses:
 
 ---
 
+### 4.2. Standard tablic katalogowych znaków i symboli (ISO 7010 / ISO 3864)
+1. **Zakaz wielkich kart zbiorczych:** Nigdy nie twórz pojedynczych grafik SVG grupujących dziesiątki znaków.
+2. **Modularne tablice kategorii:** Dziel zbiory znaków na odrębne notatki wg kategorii z punktu 4.3 (np. Tablica 2.E, Tablica 2.F itd.).
+3. **Format tabeli 5-kolumnowej z kolumną Grafika:**
+   `| Kod | Grafika | Nazwa znaku bezpieczeństwa (PL) | Kategoria | Funkcja |`
+   Osadzenie wektora: `![[ISO 7010 - <Kod>.svg\|50]]` (zawsze z wyescapowaną kreską `\|` w komórce tabeli).
+4. **Indywidualne wektory SVG:** Zapewnij czysty, zwalidowany plik `<Norma> - <Kod>.svg` dla każdej pozycji.
+5. **Algorytm kadrowania miniatur (`piktogramy_crop/`):**
+   - Ścisła segmentacja barwna (ISO green/red/blue/yellow).
+   - Wykluczenie podpisów i napisów pod ikonami.
+   - Prawidłowe marginesy (czarna obwódka dla znaków W, czysty obrys +2px dla E/F/M/P).
+
+---
+
 ## 5. Graphics, Miniatures & Vector Standards (`Stop & Review` Protocol)
 
 Every technical figure, block diagram, or table thumbnail must adhere to the following principles:
@@ -253,7 +275,7 @@ Every technical figure, block diagram, or table thumbnail must adhere to the fol
 5. **PDF Vector Extraction First (When Source PDF Exists)**:
    - If the vector source PDF of the standard is present in the folder, first attempt direct lossless vector extraction via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"`.
 6. **STOP & REVIEW Gate (Prezentacja porównawcza: Oryginalna grafika vs Końcowa grafika SVG)**:
-   - Zestawienie porównawcze przedstawiaj **bezpośrednio w oknie czatu Antigravity** wyłącznie w formule: **oryginalna grafika (zrzut ekranu/skan) vs końcowa grafika wektorowa SVG** (np. za pomocą karuzeli ````carousel lub osadzonych obok siebie obrazów `![Oryginał](...)` vs `![Końcowy SVG](...)`).
+   - Zestawienie porównawcze publikuj jako dedykowany **artefakt markdown** (`review_<obiekt>.md`) z karuzelą oraz tabelą side-by-side, stosując bezwzględne ścieżki do plików graficznych skopiowanych do folderu artefaktów (`/C:/Users/.../obraz.png`). Zapobiega to błędom podglądu `preview unavailable`.
    - **Kategoryczny zakaz prezentowania stanów pośrednich**: Użytkownika nie interesują wersje robocze, surowy kod HTML `<table>` ani tabele pośrednie — porównanie dotyczy wyłącznie ostatecznego wektora SVG z oryginalnym skanem.
    - Zapytaj:
      > *"Czy zatwierdzasz grafikę / tabelę SVG dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*
