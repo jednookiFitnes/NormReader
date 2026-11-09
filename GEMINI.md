@@ -208,6 +208,12 @@ cssclasses:
   - norma
 ---
 ![[Rysunek 1 - Schemat oceny ryzyka.svg|ISO 13849-1 - Rysunek 1 – Schemat oceny ryzyka/zmniejszania ryzyka]]
+
+**Objaśnienia**
+- a — Odwołanie do ISO 12100:2010
+- b — Odwołanie do niniejszej części ISO 13849
+
+#Safety/OcenaRyzyka
 ```
 
 ---
@@ -222,10 +228,12 @@ cssclasses:
      - **Wzory i zmienne**: Formatuj zmienne matematyczne, indeksy i nierówności w LaTeX/KaTeX (`$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
      - **Miniatury i piktogramy**: W komórkach osadzaj oczyszczone miniatury High-DPI lub wektory SVG: `![[Tablica 4 - Czubek palca.svg|140]]` (lub inline SVG).
    - **Krok B — Stylizacja nagłówka tabeli**:
+     - Kontener `.table-card`: `border: none !important; margin: 0 auto;`
      - Tytuł tabeli w jednym wierszu (`font-size: ~0.98em`, `font-weight: 700`, bez zawijania wierszy).
-     - Komórka tytułowa (`<th>`) z `border-top: hidden !important; border-left: hidden !important; border-right: hidden !important; border-bottom: 2.5px solid #111111 !important;`.
+     - Komórka tytułowa (`<th>` / `.table-title`): wycentrowana (`text-align: center !important`), z `border-top: hidden !important; border-left: hidden !important; border-right: hidden !important; border-bottom: 2.5px solid #111111 !important;`.
      - *Wymiary w milimetrach* wyrównane do prawej pod tytułem.
-   - **Krok C — Kompilacja do wektora SVG**:
+   - **Krok C — Kompilacja do wektora SVG (Niezmiennik Single-Page SVG)**:
+     - **Zasada 1 strony (Brak pustych tabel w Obsidianie)**: Każda tabela SVG musi być wyrenderowana z dokładnie 1 strony PDF (`Pages: 1`, `pageSet: False`). Kategoryczny zakaz wielostronicowych tabel – znacznik `<pageSet>` emitowany przez `pdftocairo` nie renderuje się w Markdown Obsidian (Chromium), powodując puste białe pole. Wysokość strony `@page { size: width height; }` w Edge headless musi być dynamicznie dobierana lub wystarczająco duża, aby mieścić całą tabelę na 1 stronie.
      - Wyrenderuj HTML do PDF za pomocą silnika Chromium/Edge headless:
        `msedge --headless --no-pdf-header-footer --print-to-pdf=<plik.pdf> <plik.html>` ze zwartym kadrem `@page { size: ...; margin: 3mm; }`.
      - Przekonwertuj wektorowy PDF do czystego SVG za pomocą `pdftocairo -svg <plik.pdf> <plik.svg>`.
@@ -272,6 +280,8 @@ Every technical figure, block diagram, or table thumbnail must adhere to the fol
      np.: `![[Rysunek 2 - Sięganie ponad konstrukcją ochronną.svg|ISO 13857 - Rysunek 2 – Sięganie ponad konstrukcją ochronną]]`
      lub: `![[Tablica 4 - sięganie przez otwory o regularnym kształcie - od 14lat.svg|ISO 13857 - Tablica 4 – Sięganie przez otwory o regularnym kształcie – Osoby w wieku od 14 lat]]`
    - **Zero Legend Duplication**: Gdy etykiety lub objaśnienia oznaczeń ($a, b, c$, $1, 2, 3$) znajdują się bezpośrednio na karcie rysunku/tabeli, **nie powielaj ich w tekście Markdown notatki**.
+   - **Format objaśnień w notatkach rysunków (`**Objaśnienia**`)**: Gdy legenda ($a, b, c$, $1, 2, 3$) nie mieści się na karcie SVG i musi znaleźć się w notatce pod embedem rysunku, należy ją bezwzględnie sformatować od pogrubionego nagłówka inline `**Objaśnienia**` (zakaz nagłówków Markdown `# ...` oraz kursywy `*...*`).
+   - **Korekta odwróconych barw skanów JBIG2**: W przypadku bezpośredniej ekstrakcji rycin 1-bitowych z plików PDF należy weryfikować mapowanie bitów – tło rysunku musi być w 100% czysto białe (`#ffffff`), a linie czarne (`#000000`). W razie odwrócenia barw należy zastosować inwersję rastra (`ImageOps.invert`).
 5. **PDF Vector Extraction First (When Source PDF Exists)**:
    - If the vector source PDF of the standard is present in the folder, first attempt direct lossless vector extraction via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"`.
 6. **STOP & REVIEW Gate (Prezentacja porównawcza: Oryginalna grafika vs Końcowa grafika SVG)**:

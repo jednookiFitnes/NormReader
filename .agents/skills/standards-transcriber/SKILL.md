@@ -56,14 +56,15 @@ Dla wybranej notatki punktu:
    - Zidentyfikuj ewentualne odsyłacze krajowe tłumacza PKN ($^{N1)}$, $^{N6)}$) i zapytaj użytkownika o pożądany wariant formatowania przed zapisaniem notatki.
 3. Przepisz tekst w 100% dosłownie.
 4. Formatuj nagłówek punktu (np. `#### 4.1 Cele bezpieczeństwa w projektowaniu`).
-5. Wykrywaj odniesienia do innych norm i twórz naturalne wikilinki w tekście:
+5. **Formatowanie uwag:** Wszystkie uwagi występujące w tekście (`UWAGA`, `UWAGA 1`, `NOTE`) formatuj jako callout `> [!warning] Uwaga` (lub `> [!warning] Uwaga 1`, `> [!warning] NOTE`).
+6. Wykrywaj odniesienia do innych norm i twórz naturalne wikilinki w tekście:
    - np. `zgodnie z wymaganiami [[_14119 - urządzenia ryglujące|ISO 14119]]`
    - np. `patrz [[4.3. Określenie wymaganego PLr]]`
    - Pozostałe powiązane normy, punkty oraz linki zewnętrzne WWW (np. do ISO OBP, IEC) umieszczaj w parametrze YAML `related:` (zakaz tworzenia nagłówków Markdown `# 📓 Powiązane:` oraz `# 🔗 Linki:` w treści notatki).
-6. Odwołania do rysunków i tabel osadzaj transkluzją:
+7. Odwołania do rysunków i tabel osadzaj transkluzją:
    - `![[13849-1 - RYSUNEK 1 - Schemat oceny ryzyka]]`
    - `![[13849-1 - TABLICA 2 - Poziomy zapewnienia bezpieczeństwa (PL)]]`
-7. Dodaj precyzyjny tag inline na końcu akapitu (np. `#Safety/OcenaRyzyka/Parametry/PL`).
+8. Dodaj precyzyjny tag inline na końcu akapitu (np. `#Safety/OcenaRyzyka/Parametry/PL`).
 
 ### Krok 3: Konwersja tabel (Pipeline HTML -> SVG -> Embed)
 1. **Zatwierdzony tryb postępowania:**
@@ -74,14 +75,16 @@ Dla wybranej notatki punktu:
    - **Geometria i układ:** Mierz i odtwarzaj proporcjonalne szerokości (`width: %`) oraz minimalne wysokości wierszy (`height: px`) ściśle według skanu.
    - **Scalenia (`rowspan` / `colspan`):** Odwzorowuj wielopoziomowe nagłówki oraz scalone komórki części ciała i miniatur.
    - **Stylizacja nagłówka tabeli:**
+     - Kontener `.table-card`: `border: none !important; margin: 0 auto;`
      - Tytuł tabeli w jednym wierszu (`font-size: ~0.98em`, `font-weight: 700`, bez zawijania tekstu).
-     - Komórka tytułowa (`<th>`) z `border-top: hidden !important; border-left: hidden !important; border-right: hidden !important; border-bottom: 2.5px solid #111111 !important; padding: 10px 4px 5px 4px;`.
+     - Komórka tytułowa (`<th>` / `.table-title`): wycentrowana (`text-align: center !important`), z `border-top: hidden !important; border-left: hidden !important; border-right: hidden !important; border-bottom: 2.5px solid #111111 !important; padding: 10px 4px 5px 4px;`.
      - *Wymiary w milimetrach* wyrównane do prawej pod tytułem.
    - **Grube linie graniczne:** Zgodnie z normą wyróżniaj granice stref wymiarowych za pomocą styli CSS (`border-top: 2.5px solid #111;`, `border-right: ...`).
    - **Wzory i zmienne:** Formatuj zmienne matematyczne, indeksy i nierówności w LaTeX/KaTeX (`$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
    - **Miniatury i piktogramy:** Osadzaj oczyszczone miniatury High-DPI lub wektory SVG bezpośrednio w komórkach (z czystym tłem `#ffffff` bez znaków wodnych).
-3. **Kompilacja tabeli HTML do pliku SVG:**
-   - Użyj skryptu `scripts/render_table_to_svg.py` lub wykonaj polecenia:
+3. **Kompilacja tabeli HTML do pliku SVG (Niezmiennik Single-Page SVG):**
+   - **Gwarancja 1 strony (`Pages: 1`, `pageSet: False`):** Każda tabela SVG musi powstać z dokładnie 1 strony PDF. Wielostronicowe pliki generują w `pdftocairo` znacznik `<pageSet>`, który nie jest renderowany przez silnik Chromium w Markdown Obsidiana (powoduje puste białe pole). Wysokość `@page` musi być dynamicznie dostosowywana (np. skryptem `render_table_to_svg.py`), aby cała tabela mieściła się na pojedynczej stronie.
+   - Użyj zaktualizowanego skryptu `scripts/render_table_to_svg.py` lub wykonaj polecenia:
      1. Wydruk HTML do PDF: `msedge --headless --no-pdf-header-footer --print-to-pdf=<plik.pdf> <plik.html>` z dopasowanym `@page { size: ...; margin: 3mm; }`.
      2. Konwersja do SVG: `pdftocairo -svg <plik.pdf> <plik.svg>`.
    - Zapisz wygenerowany plik `.svg` w folderze `Attachments/` danej normy.
@@ -90,6 +93,31 @@ Dla wybranej notatki punktu:
      `![[Tablica X - Nazwa.svg|<Skrót Normy> - Tablica X – Tytuł]]`
      np.: `![[Tablica 4 - sięganie przez otwory o regularnym kształcie - od 14lat.svg|ISO 13857 - Tablica 4 – Sięganie przez otwory o regularnym kształcie – Osoby w wieku od 14 lat]]`
    - **Kategoryczny zakaz dodawania nagłówków Markdown (`# ...`)**: Notatka tabeli nie może zawierać nagłówka Markdown `# Tablica...` (tytuł tabeli znajduje się już w nazwie pliku oraz na wyrenderowanej karcie SVG tabeli). Notatka zawiera wyłącznie czysty embed SVG oraz tagi.
+
+### Krok 3b: Tablice katalogowe znaków bezpieczeństwa i piktogramów (np. ISO 7010, ISO 3864)
+
+W przypadku norm definiujących katalogi znaków graficznych, symboli i piktogramów obowiązuje rygorystyczny standard:
+
+1. **Kategoryczny zakaz generowania tablic zbiorczych (Wielkich kart SVG):**
+   - Zabrania się łączenia dziesiątek znaków w jedną wielkoformatową grafikę wektorową/mozaikę rastrową. Taki format jest nieczytelny i uniemożliwia wyszukiwanie znaków.
+2. **Architektura modularna tabel kategorii:**
+   - Każdą kategorię funkcjonalną wydzielaj do osobnej notatki (`Tablica X.<Kategoria> - Nazwa.md`, np. `Tablica 2.E - Znaki warunku bezpieczeństwa.md`).
+   - Twórz nadrzędną notatkę indeksową (`Tablica X - Zestawienie...md`) agregującą kategorie, zakresy kodów i liczbę znaków.
+3. **Format tabeli z kolumną „Grafika”:**
+   - Bezwzględnie stosuj 5-kolumnowy układ tabeli:
+     `| Kod | Grafika | Nazwa znaku bezpieczeństwa (PL) | Kategoria | Funkcja |`
+     `| :---: | :---: | :--- | :---: | :--- |`
+     `| **E001** | ![[ISO 7010 - E001.svg\|50]] | Wyjście ewakuacyjne (lewostronne) | E | Warunek bezpieczeństwa... |`
+   - **Obowiązkowe escapowanie pipe (`\|50`):** W komórkach tabeli separator szerokości transkluzji Obsidiana musi być zapisany ze znakiem ucieczki (`\|`), aby parser tabel nie traktował go jako granicy kolumny.
+4. **Indywidualne wektory SVG w `Attachments/`:**
+   - Każdy zarejestrowany znak musi posiadać swój własny, zweryfikowany plik wektorowy SVG o nazwie `<Skrót Normy> - <Kod>.svg` (np. `ISO 7010 - E001.svg`).
+5. **Deterministyczne kadrowanie piktogramów ze skanów (`Attachments/piktogramy_crop/`):**
+   - **Zakaz sztywnych siatek współrzędnych:** Pływające marginesy i znikające kolumny unieważniają stałe podziały.
+   - **Klastrowanie barwne:** Wykorzystuj ściśle zdefiniowane barwy normy (ISO green, red, blue, yellow) i wyznaczaj prostokąt ograniczający największego klastra barwnego (`get_largest_cluster_bbox`).
+   - **Separacja od tekstu:** Wysokość kadru musi ograniczać się wyłącznie do geometrii samego piktogramu — bez napisów, opisów i linii podziału tabeli pod ikoną.
+   - **Obsługa obwódek:**
+     - Znaki kwadratowe i okrągłe (E, F, M, P): granica koloru stanowi obrys znaku (+2 px marginesu).
+     - Trójkąty ostrzegawcze (W): żółty trójkąt posiada czarną obwódkę normatywną — kadr musi objąć obwódkę (padding 10–12 px wokół żółtego + 2 px białego marginesu).
 
 ### Krok 4: Przerysowanie / rekonstrukcja rysunku i pętla Stop & Review
 1. **Wybór metody rekonstrukcji:**
@@ -103,10 +131,11 @@ Dla wybranej notatki punktu:
    ```powershell
    python scripts/svg_generator.py --validate "<ścieżka.svg>"
    ```
-4. **Zaprezentuj zestawienie użytkownikowi bezpośrednio w Antigravity (Tylko Oryginał vs Końcowy SVG):**
-   - Wyświetl porównanie bezpośrednio w czacie Antigravity wyłącznie jako: **oryginalna grafika (zrzut ekranu/skan) vs końcowa grafika wektorowa SVG** (np. za pomocą karuzeli lub side-by-side).
-   - Zakaz prezentowania stanów pośrednich (np. roboczego kodu HTML, tabel roboczych).
-   - Zapytaj: *"Czy zatwierdzasz grafikę / tabelę SVG dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*.
+4. **Zestawienie Stop & Review w dedykowanym artefakcie:**
+   - Wygeneruj artefakt markdown `review_<obiekt>.md` w katalogu artefaktów sesji z metadanymi `RequestFeedback: true`.
+   - Umieść w nim karuzelę ````carousel oraz tabelę side-by-side, odwołując się do obrazów przez pełną ścieżkę `/C:/Users/.../obraz.png` (zapobiega to błędom podglądu `preview unavailable`).
+   - Podaj bezpośredni link do artefaktu w oknie czatu wraz z pytaniem weryfikacyjnym: *"Czy zatwierdzasz grafikę / tabelę SVG dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*.
+   - Zakaz prezentowania stanów pośrednich (np. roboczego kodu HTML, tabel roboczych)..
 5. Po zatwierdzeniu:
    - Zapisz plik `Rysunek X - Tytuł.svg` w folderze `Attachments/` danej normy.
    - W notatce `RYSUNEK X...md` wstaw odwołanie z podpisem:
@@ -115,7 +144,9 @@ Dla wybranej notatki punktu:
 6. **Kategoryczny zakaz nagłówków Markdown (`# ...`) i brak duplikacji objaśnień (Zasada czystego widoku):**
    - W notatkach rysunków **kategorycznie zabrania się dodawania nagłówków Markdown (`# ...`)** (tytuł rysunku jest zawarty bezpośrednio na karcie graficznej SVG oraz w nazwie pliku notatki; nagłówki Markdown powodują niepotrzebną duplikację przy transkluzjach `![[...]]`).
    - Jeśli objaśnienia/legenda rysunku (np. $a$, $b$, $c$, 1, 2, 3) są już zawarte wewnątrz wektora SVG na karcie graficznej, **nie przepisuj ich ponownie w treści notatki Markdown pod rysunkiem**.
-   - Notatka rysunku zawiera wyłącznie frontmatter YAML, czyste osadzenie wektora z podpisem oraz tagi inline na końcu.
+   - **Format objaśnień w treści notatki (`**Objaśnienia**`)**: Gdy legenda nie mieści się na karcie wektorowej SVG i musi znaleźć się pod rysunkiem w notatce, należy ją sformatować od pogrubionego nagłówka inline `**Objaśnienia**` (zakaz nagłówków Markdown `# ...` oraz kursywy `*...*`).
+   - **Korekta odwróconych barw skanów JBIG2:** W przypadku bezpośredniej ekstrakcji rycin 1-bitowych z plików PDF weryfikuj mapowanie bitów – tło rysunku musi być w 100% czysto białe (`#ffffff`), a linie czarne (`#000000`). W razie odwrócenia barw zastosuj inwersję rastra (`ImageOps.invert`).
+   - Notatka rysunku zawiera wyłącznie frontmatter YAML, czyste osadzenie wektora z podpisem, ewentualne pogrubione `**Objaśnienia**` oraz tagi inline na końcu.
 
 ### Krok 5: Uzupełnienie metadanych YAML
 Upewnij się, że notatka zawiera komplet pól wymaganych przez `Normy.base` oraz klasę stylów:
