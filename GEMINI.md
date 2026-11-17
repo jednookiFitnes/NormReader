@@ -2,7 +2,7 @@
 
 ## Language Policy
 - **User Communication**: Always communicate with the user in **Polish** (unless explicitly requested otherwise).
-- **Normative Text Transcription (CRITICAL)**: Transcribe standard clauses, tables, and legal acts **strictly in the original language of the source document** (Polish for Polish editions `PN-EN`, English for untranslated `ISO`/`IEC`/`EN` documents). Never translate, paraphrase, or summarize normative text.
+- **Normative Text Transcription (CRITICAL)**: Transcribe standard clauses, tables, and legal acts **strictly in the original language of the source document** (Polish for `PN-EN`, English for untranslated `ISO`/`IEC`/`EN`). Never translate, paraphrase, or summarize normative text.
 - **Engineering Comments & Git Commits**: Write all engineering notes (`norm_note`, `> [!NOTE] Komentarz inżynierski:`) and Git commit messages in **Polish** (Conventional Commits).
 
 ---
@@ -17,74 +17,66 @@ You act as **Industrial Automation Engineer & Technical Knowledge Base Architect
   - EU Directives: `32 - Notes - Dyrektywy\`
   - Polish Law: `33 - Notes - Prawo PL\`
 - **Database Views**: Indexed automatically by `Normy.base`, `Dyrektywy.base`, and `PrawoPL.base`.
-- **Automation Skill & Scripts**: `.agents/skills/standards-transcriber/` (or `scripts/` in repo root).
+- **Automation Skill & Scripts**: `.agents/skills/standards-transcriber/`.
 
 ---
 
 ## 2. Non-Negotiable Guardrails
 
 ### 2.1. Iron Rule: Zero Text Alteration ($100\%$ Verbatim)
-1. **Word-for-Word Fidelity**: Every clause, subclause, definition, footnote, and normative note must be transcribed **character-for-character**, preserving original punctuation, numbering, list hierarchy, and mathematical symbols.
-2. **No Autonomous Translation**: If the source screenshot/PDF is in Polish, transcribe in Polish. If in English, transcribe in English.
-3. **Zero Hallucination or Interpretation**: Never inject personal interpretations into normative text. Store engineering commentary exclusively inside the YAML `norm_note:` field or a dedicated callout:
+1. **Word-for-Word Fidelity**: Transcribe every clause, subclause, definition, footnote, and normative note **character-for-character**, preserving original punctuation, numbering, list hierarchy, and math symbols.
+2. **No Autonomous Translation**: Preserve the exact source language (Polish $\rightarrow$ Polish, English $\rightarrow$ English).
+3. **Zero Hallucination or Interpretation**: Store Trinitec engineering commentary exclusively in YAML `norm_note:` or a dedicated callout:
    ```markdown
    > [!NOTE] Komentarz inżynierski:
    > Treść komentarza...
    ```
 
 ### 2.2. Archival Source Protection
-1. **Never Delete Source Files Without Explicit Authorization**: Original raster screenshots (`.png`, `.jpg`, `.webp`) and source PDFs in `Attachments/` are permanent legal/engineering evidence and **must never be deleted or overwritten without explicit user authorization under the Stop & Verify protocol**.
-2. **Clean Note Body**: Once a note is transcribed, replace the raster screenshot embed in the Markdown body with structured text, a Markdown/HTML table, or a vector `.svg` embed. Do **not** wrap the old screenshot in a collapsible callout unless explicitly requested by the user.
+1. **Never Delete Source Files**: Original raster screenshots (`.png`, `.jpg`, `.webp`) and source PDFs in `Attachments/` are permanent evidence and **must never be deleted or overwritten without explicit user authorization**.
+2. **Clean Note Body**: Replace raw screenshot embeds in the note body with structured text, vector `.svg` table embeds, or vector `.svg` drawing embeds. Do not leave old screenshots inside collapsible callouts unless requested.
 
-### 2.3. Text Highlighting Preservation (`==tekst==`)
-- Zawsze analizuj zrzuty ekranu pod kątem obecności żółtego zakreślacza tekstu.
-- Zidentyfikowane fragmenty zaznaczaj w Markdown składnią `==zakreślony tekst==`, zachowując 100% dosłowność tekstu.
+### 2.3. Highlighter Preservation (`==text==`)
+- Inspect source scans/screenshots for yellow or colored highlighter marks and wrap the exact same words in `==highlighted text==`.
 
-### 2.4. Related Links and External URLs Policy (`related:`)
-- Nigdy nie twórz osobnych nagłówków Markdown `# 📓 Powiązane:` ani `# 🔗 Linki:` na końcu notatek.
-- Wszystkie powiązane notatki, normy i linki zewnętrzne umieszczaj w nagłówku YAML w polu `related:`:
+### 2.4. Related Links & External URLs (`related:` YAML Standard)
+- Never create `# 📓 Powiązane:` or `# 🔗 Linki:` headings in the note body.
+- Store all related notes, referenced standards, and external URLs in YAML `related:` (quoted strings):
   ```yaml
   related:
     - "[[_PN-EN ISO 13849-1 - bezpieczeństwo - systemy sterowania]]"
     - "[IEC 60417 - 5638, Emergency stop](https://www.iso.org/obp/ui#iec:grs:60417:5638)"
   ```
-- W treści merytorycznej notatki twórz wyłącznie naturalne linki wikilinks wplecione w zdania.
+- Keep only natural inline wikilinks integrated into sentences within the note body.
 
-### 2.5. National Footnotes Policy (`N1)`, `N2)`, `N6)`) — Stop & Ask Protocol
-- W polskich wydaniach norm (PN-EN, PN-EN ISO) oznaczenia z literą **N** w indeksie górnym (np. $^{N1)}$, $^{N2)}$, $^{N6)}$) to odsyłacze krajowe tłumacza/redakcji PKN (*National Footnotes*).
-- **Zasada Stop & Ask:** Nigdy nie podejmuj decyzji o sposobie transkrypcji odsyłaczy krajowych autonomicznie. Zawsze zapytaj użytkownika o wybór jednego z wariantów:
-  1. **Usunięcie szumu redakcyjnego tłumacza:** Pozostawienie samego czystego tekstu inżynierskiego normy.
-  2. **Indeks górny HTML / LaTeX:** Zapis w indeksie górnym `<sup>N1)</sup>` lub `$\text{PL}^\text{N6)}$` (wierne odwzorowanie ze skanu bez nawiasów kwadratowych).
-  3. **Pełne przypisy dolne Obsidian (`[^N1]`):** Odnośniki dolne z rozwinięciem słownikowym PKN na dole notatki.
+### 2.5. PKN National Footnotes (`N1)`, `N2)`, `N6)`) — Stop & Ask Protocol
+- Superscripts with `N` ($^{\text{N1)}}$, $^{\text{N2)}}$, $^{\text{N6)}}$) in Polish `PN-EN` editions represent PKN translator/editorial footnotes (*National Footnotes*).
+- **Stop & Ask**: Never decide how to transcribe `N` footnotes autonomously. Pause and ask the user to select one option:
+  1. **Strip translator noise**: Keep pure engineering text without editorial markers.
+  2. **HTML / LaTeX Superscript**: Format as `<sup>N1)</sup>` or `$\text{PL}^\text{N6)}$` (without square brackets).
+  3. **Full Obsidian Footnotes (`[^N1]`)**: Bottom-of-note footnote definitions with full PKN explanations.
 
-### 2.6. Formatowanie uwag normatywnych (`> [!warning] Uwaga`)
-- Wszelkie uwagi zawarte w treści normatywnej (`UWAGA`, `UWAGA 1`, `UWAGA do hasła:`, `NOTE`) muszą być transkrybowane jako callout ostrzegawczy:
+### 2.6. Normative Notes Formatting (`> [!warning] Uwaga`)
+- Format all normative notes (`UWAGA`, `UWAGA 1`, `UWAGA do hasła:`, `NOTE`) strictly as warning callouts (never as plain paragraphs or `> [!NOTE]`):
   ```markdown
   > [!warning] Uwaga
-  > Treść uwagi z zachowaniem 100% dosłowności...
+  > Verbatim note text...
   ```
-- Kategoryczny zakaz pozostawiania uwag jako zwykłego akapitu tekstu lub calloutu ogólnego `> [!NOTE]` (rezerwowanego wyłącznie dla komentarzy inżynierskich Trinitec).
 
 ---
 
 ## 3. Note Architecture & `.base` YAML Schemas
 
-Every note must contain valid YAML frontmatter matching the `Normy.base` / `Dyrektywy.base` / `PrawoPL.base` schema.
-- **Quoted Wikilinks**: Every wikilink inside YAML **must** be wrapped in double quotes (e.g., `index: ["[[_PN-EN ISO 13849-1]]"]`).
-- **Exact Property Names**: Preserve exact YAML property keys required by `.base` files (including the legacy spelling `norm_in_possesion: true` with a single `s` in the index note).
-- **Mandatory CSS Class for Content Notes (`cssclasses: [norma]`)**: All content notes in standards folders (clauses/points, tables, drawings) **must** define `cssclasses:` containing `norma`:
-  ```yaml
-  cssclasses:
-    - norma
-  ```
-- **CRITICAL — Never Add `norma` to Main Index Note**: The main standard index note (`_<NormNumber> - <Title>.md`), which embeds databases (`Normy.base`), **must NEVER** have the `norma` class (which would break the database table view layout). It uses exclusively:
-  ```yaml
-  cssclasses:
-    - wide
-  ```
+Every note must contain valid YAML frontmatter matching `Normy.base` / `Dyrektywy.base` / `PrawoPL.base`:
+- **Quoted Wikilinks**: Wrap every YAML wikilink in double quotes (`index: ["[[_PN-EN ISO 13849-1]]"]`).
+- **Exact Property Names**: Preserve exact keys required by `.base` views (including legacy `norm_in_possesion: true` with a single `s` in index notes).
+- **CSS Classes (`cssclasses`)**:
+  - All clause/point, table, and drawing notes must include `cssclasses: [norma]`.
+  - **CRITICAL**: The main index note (`_<NormNumber> - <Title>.md`) must **never** include `norma`; it uses exclusively `cssclasses: [wide]`.
+- **Heading Depth Identity Rule (Clause Notes Only)**: Match `#` count to numbering depth (`# 4 Title` / `# Annex A`, `## 4.1 Title`, `### 4.1.1 Title`, `#### 4.1.1.1 Title`).
+- **No Markdown Headings in Table & Drawing Notes**: Table and drawing notes must **never** contain Markdown headings (`# Rysunek...`, `# Tablica...`) to prevent duplicate headers in transclusions (`![[...]]`).
 
 ### 3.1. Standard Index Note (`_<NormNumber> - <Title>.md`)
-Location: Root folder of the standard in `31 - Notes - Normy\<Number> - <Title>\`.
 ```yaml
 ---
 tags:
@@ -144,24 +136,17 @@ related:
 cssclasses:
   - norma
 ---
-#### 4.1 Cele bezpieczeństwa w projektowaniu
+## 4.1 Cele bezpieczeństwa w projektowaniu
 
-Verbatim clause text...
+Verbatim clause text... Zgodnie z [[_14119 - urządzenia ryglujące|ISO 14119]] oraz [[4.3. Określenie wymaganego PLr]].
 
-Cross-references use Obsidian wikilinks:
-e.g., zgodnie z wymaganiami [[_14119 - urządzenia ryglujące|ISO 14119]] oraz [[4.3. Określenie wymaganego PLr]].
-
-Embed referenced figures and tables via transclusion:
 ![[13849-1 - RYSUNEK 1 - Schemat oceny ryzyka]]
 ![[13849-1 - TABLICA 2 - Poziomy zapewnienia bezpieczeństwa (PL)]]
 
 #Safety/OcenaRyzyka/Parametry/PL
 ```
 
-### 3.3. Table Note (`<NormNumber> - TABLICA <N> - <Title>.md` or `TABLICA <N> - <Title>.md`)
-> [!IMPORTANT]
-> **NO MARKDOWN HEADINGS IN TABLES**: Table notes MUST NOT contain Markdown headings (`# Tablica...`). The title is already in the note filename and on the SVG card itself. Markdown headings cause unwanted duplicates during transclusions (`![[...]]`).
-
+### 3.3. Table Note (`<NormNumber> - TABLICA <N> - <Title>.md`)
 ```yaml
 ---
 tags:
@@ -185,10 +170,7 @@ cssclasses:
 #Safety/OcenaRyzyka/Parametry/PL
 ```
 
-### 3.4. Drawing / Figure Note (`<NormNumber> - RYSUNEK <N> - <Title>.md` or `RYSUNEK <N> - <Title>.md`)
-> [!IMPORTANT]
-> **NO MARKDOWN HEADINGS IN DRAWINGS**: Drawing notes MUST NOT contain Markdown headings (`# Rysunek...`). The title is already on the vector SVG card and in the note filename. The note body contains strictly the SVG embed and inline tags.
-
+### 3.4. Drawing / Figure Note (`<NormNumber> - RYSUNEK <N> - <Title>.md`)
 ```yaml
 ---
 tags:
@@ -218,131 +200,92 @@ cssclasses:
 
 ---
 
-## 4. Table & Formula Conversion Standards
+## 4. Technical Tables & Safety Sign Catalogs
 
-1. **Obowiązkowy pipeline konwersji tabel (HTML -> SVG -> Embed)**:
-   - **Krok A — Kodowanie geometrii HTML `<table>`**: Wszystkie tabele tworzone są początkowo w **formacie HTML `<table>`**, aby precyzyjnie odwzorować układ geometryczny normy:
-     - **Szerokości i wysokości komórek**: Zachowuj proporcjonalne szerokości (`width: ...%`) oraz minimalne wysokości wierszy (`height: ...px`) komórek ściśle według oryginalnej tabeli ze skanu.
-     - **Scalenia i hierarchia nagłówków**: Stosuj `rowspan` i `colspan` dla wielopoziomowych nagłówków i powtarzających się wartości.
-     - **Grube linie graniczne**: Obramowania wyróżniające strefy graniczne części ciała wykonuj w stylach CSS (np. `border-top: 2.5px solid var(--text-normal, #111);`, `border-right: ...`).
-     - **Wzory i zmienne**: Formatuj zmienne matematyczne, indeksy i nierówności w LaTeX/KaTeX (`$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
-     - **Miniatury i piktogramy**: W komórkach osadzaj oczyszczone miniatury High-DPI lub wektory SVG: `![[Tablica 4 - Czubek palca.svg|140]]` (lub inline SVG).
-   - **Krok B — Stylizacja nagłówka tabeli**:
-     - Kontener `.table-card`: `border: none !important; margin: 0 auto;`
-     - Tytuł tabeli w jednym wierszu (`font-size: ~0.98em`, `font-weight: 700`, bez zawijania wierszy).
-     - Komórka tytułowa (`<th>` / `.table-title`): wycentrowana (`text-align: center !important`), z `border-top: hidden !important; border-left: hidden !important; border-right: hidden !important; border-bottom: 2.5px solid #111111 !important;`.
-     - *Wymiary w milimetrach* wyrównane do prawej pod tytułem.
-   - **Krok C — Kompilacja do wektora SVG (Niezmiennik Single-Page SVG)**:
-     - **Zasada 1 strony (Brak pustych tabel w Obsidianie)**: Każda tabela SVG musi być wyrenderowana z dokładnie 1 strony PDF (`Pages: 1`, `pageSet: False`). Kategoryczny zakaz wielostronicowych tabel – znacznik `<pageSet>` emitowany przez `pdftocairo` nie renderuje się w Markdown Obsidian (Chromium), powodując puste białe pole. Wysokość strony `@page { size: width height; }` w Edge headless musi być dynamicznie dobierana lub wystarczająco duża, aby mieścić całą tabelę na 1 stronie.
-     - Wyrenderuj HTML do PDF za pomocą silnika Chromium/Edge headless:
-       `msedge --headless --no-pdf-header-footer --print-to-pdf=<plik.pdf> <plik.html>` ze zwartym kadrem `@page { size: ...; margin: 3mm; }`.
-     - Przekonwertuj wektorowy PDF do czystego SVG za pomocą `pdftocairo -svg <plik.pdf> <plik.svg>`.
-     - Zapisz plik `.svg` w podfolderze `Attachments/` normy.
-   - **Krok D — Osadzenie z podpisem w notatce Markdown**:
-     - W notatce tabeli umieszczaj wyłącznie embed SVG z podpisem:
-       `![[Nazwa_Tabeli.svg|<Skrót Normy> - <Numer i tytuł tabeli>]]`
-       np.: `![[Tablica 4 - sięganie przez otwory o regularnym kształcie - od 14lat.svg|ISO 13857 - Tablica 4 – Sięganie przez otwory o regularnym kształcie – Osoby w wieku od 14 lat]]`
-2. **Zakaz wklejania surowego kodu HTML do treści notatki**:
-   - Nie umieszczaj wielkich bloków kodu HTML `<table>` bezpośrednio w notatce docelowej (powoduje to utratę formatowania w Pandoc GUI LaTeX oraz zaśmieca notatkę). Zastępuj je czystym osadzeniem wektorowym SVG.
+### 4.1. Mandatory Table Pipeline (`HTML -> SVG -> Embed`)
+Convert normative tables via headless vector rendering to eliminate Pandoc GUI LaTeX errors, preserve complex merges, and keep Markdown notes free of raw HTML bloat:
 
----
+1. **Step A — Author Geometry in HTML `<table>`**:
+   - Replicate exact column widths (`width: ...%`), row heights (`height: ...px`), `rowspan`/`colspan` hierarchy, and thick zone borders (`border-top: 2.5px solid #111;`).
+   - Format math variables, subscripts, and inequalities in LaTeX/KaTeX (`$s_r$`, `$e \le 4$`, `$\ge 850^\text{a}$`).
+   - Embed cleaned High-DPI or vector thumbnails inside cells where applicable.
+2. **Step B — Table Header Styling**:
+   - Container `.table-card`: `border: none !important; margin: 0 auto;`
+   - Title cell `.table-title`: centered single-line bold text (`text-align: center !important; font-size: ~0.98em; font-weight: 700;`), hidden outer borders (`border-top: hidden !important; border-left: hidden !important; border-right: hidden !important;`), and a thick bottom separator (`border-bottom: 2.5px solid #111111 !important;`).
+   - Right-align unit declarations (e.g., *Wymiary w milimetrach*) beneath the title.
+3. **Step C — Single-Page SVG Compilation Invariant (`Pages: 1`, `pageSet: False`)**:
+   - **CRITICAL**: Every rendered table SVG must be a **1-page vector** (`Pages: 1`, `pageSet: False`). Multi-page PDFs/SVGs are strictly forbidden because `pdftocairo`'s `<pageSet>` tag is unsupported by Obsidian's Chromium engine and renders as a blank white box.
+   - Dynamically size `@page { size: <width> <height>; margin: 3mm; }` in headless Edge so the entire table always fits on a single page:
+     ```powershell
+     msedge --headless --no-pdf-header-footer --print-to-pdf="<table.pdf>" "<table.html>"
+     pdftocairo -svg "<table.pdf>" "<Attachments/Tablica X - Title.svg>"
+     ```
+4. **Step D — Embed with Explicit Caption**:
+   - Embed in the table note (without Markdown headings or raw HTML):
+     `![[Tablica X - Title.svg|<NormShort> - Tablica X – Title]]`
 
-### 4.2. Standard tablic katalogowych znaków i symboli (ISO 7010 / ISO 3864)
-1. **Zakaz wielkich kart zbiorczych:** Nigdy nie twórz pojedynczych grafik SVG grupujących dziesiątki znaków.
-2. **Modularne tablice kategorii:** Dziel zbiory znaków na odrębne notatki wg kategorii z punktu 4.3 (np. Tablica 2.E, Tablica 2.F itd.).
-3. **Format tabeli 5-kolumnowej z kolumną Grafika:**
-   `| Kod | Grafika | Nazwa znaku bezpieczeństwa (PL) | Kategoria | Funkcja |`
-   Osadzenie wektora: `![[ISO 7010 - <Kod>.svg\|50]]` (zawsze z wyescapowaną kreską `\|` w komórce tabeli).
-4. **Indywidualne wektory SVG:** Zapewnij czysty, zwalidowany plik `<Norma> - <Kod>.svg` dla każdej pozycji.
-5. **Algorytm kadrowania miniatur (`piktogramy_crop/`):**
-   - Ścisła segmentacja barwna (ISO green/red/blue/yellow).
-   - Wykluczenie podpisów i napisów pod ikonami.
-   - Prawidłowe marginesy (czarna obwódka dla znaków W, czysty obrys +2px dla E/F/M/P).
+### 4.2. Safety Sign & Pictogram Catalogs (e.g., ISO 7010, ISO 3864)
+1. **No Composite Mosaic Sheets**: Never generate large multi-sign SVG mosaic sheets.
+2. **Modular Functional Tables**: Split sign catalogs into separate functional category notes (e.g., Table 2.E, Table 2.F) linked from a parent index.
+3. **5-Column Markdown Table with Escaped Pipe**:
+   `| Kod | Grafika | Nazwa (PL) | Kategoria | Funkcja |`
+   Embed individual vectors from `Attachments/` with an escaped width pipe: `![[ISO 7010 - <Kod>.svg\|50]]`.
+4. **Pictogram Cropping (`piktogramy_crop/`)**: Crop individual signs from scans without text captions, table grid lines, or clipped borders using ISO color-mask clustering (preserving the black outer rim for `W` signs and $+2\text{ px}$ margin for `E`/`F`/`M`/`P`).
 
 ---
 
-## 5. Graphics, Miniatures & Vector Standards (`Stop & Review` Protocol)
+## 5. Technical Drawings, Graphics & `Stop & Review` Protocol
 
-Every technical figure, block diagram, or table thumbnail must adhere to the following principles:
+1. **Strict Ban on AI Image Generators (Diffusion / Imagen)**:
+   - **NEVER** use generative AI image models (`image-generator`) to invent or redraw normative figures. Every figure must be an authentic representation of the standard.
+2. **Pure White Background & JBIG2 Bit-Inversion Fix**:
+   - All drawings and table miniatures must have a $100\%$ pure white background (`#ffffff`) and crisp black strokes (`#000000` / `#111111`) at High-DPI resolution, completely free of gray scanner backgrounds or watermarks (PKN/WBY).
+   - When extracting 1-bit JBIG2 images directly from PDFs, verify bit mapping; if colors are inverted (white lines on black background), apply raster inversion (`ImageOps.invert`).
+3. **Vector Extraction & Reconstruction**:
+   - **PDF Vector First**: If a vector PDF exists, extract directly via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"`.
+   - **High-DPI / Clean Vector Reconstruction**: Remove scanner gray/watermarks via white-point thresholding, upscale $4\times$ (Lanczos/Bicubic with edge sharpening), and trace cleanly (VTracer) or construct via Multimodal LLM CAD-SVG (`svg_generator.py` with 3 layers: `<pattern id="hatch-45">`, white-masked foreground `<path fill="#ffffff">`, and ISO 129 dimensions/text). Never run blind bitmap auto-tracing (`potrace`/`findContours`) on uncleaned low-res screenshots with hatching and text.
+4. **Embed Caption Convention & Ban on Titles Inside SVG**:
+   - Embed all figures and tables using the strict caption format:
+     `![[Plik.svg|<Skrót Normy> - <Numer i tytuł>]]`
+     (e.g., `![[Rysunek 2 - Sięganie ponad konstrukcją ochronną.svg|ISO 13857 - Rysunek 2 – Sięganie ponad konstrukcją ochronną]]`).
+   - **NO TITLES/CAPTIONS IN SVG RENDER**: The `.svg` file must contain **only** technical geometry, internal labels, and internal legend items. Never include figure titles (`Rysunek X — ...` / `Figure X — ...`) inside the SVG canvas.
+5. **Legend & Explanations Formatting (`**Objaśnienia**`)**:
+   - **Zero Duplication**: If the legend/key ($a, b, c$, $1, 2, 3$) is already rendered inside the SVG card, **do not** repeat it in the Markdown note body.
+   - **Markdown Legend Format**: When explanations are placed in the note body beneath the SVG embed, start strictly with bold `**Objaśnienia**` (Markdown headings `# ...` and italics `*...*` are strictly forbidden):
+     ```markdown
+     ![[Rysunek X - Tytuł.svg|ISO ... - Rysunek X – Tytuł]]
 
-1. **STRICT BAN on AI Image Generation (Imagen / Gemini Image-Gen)**:
-   - **NEVER** use generative diffusion models (`image-generator`) to hallucinate or invent new drawings for technical standards. They alter geometry, distort anatomy, and hallucinate dimensional principles (e.g., placing dimension arrows across walls instead of measuring reach depth).
-2. **Golden Rule for Drawings & Miniatures**:
-   - *"Grafika ma być taka sama tylko z wyższą rozdzielczością, bez szarego pod spodem i z czytelnymi opisami."*
-3. **Approved Reconstruction Workflow (Cleaned High-DPI & Clean Vector)**:
-   - **Step A — Background Cleaning & Watermark Removal**: Map scanner gray background, paper texture, and watermarks (e.g. PKN, WBY) to pure white `#ffffff` via white-point thresholding/curve clipping without eroding black ink strokes.
-   - **Step B — High-DPI Upscaling (4x)**: Upscale the cleaned bitmap using high-order Lanczos/Bicubic resampling with edge sharpening to ensure crisp rendering on 4K/Retina displays and in PDF prints.
-   - **Step C — Format Selection**: Save either as High-DPI PNG or as a clean spline SVG (via VTracer on the cleaned binary bitmap).
-   - **Step D — Mechanical / Block Diagrams (CAD-SVG)**: For purely geometric, dimensional schematics (such as Rysunek 2), Multimodal LLM Vision-to-CAD authoring with 3 layers (canvas/hatch, contours, ISO 129 dimensions) remains valid.
-4. **Zasada podpisywania rycin i tablic (Embed Caption Convention)**:
-   - Wszystkie rysunki i tabele osadzaj w notatkach z jawnym podpisem w formacie:
-     `![[plik.svg|<Skrót Normy> - <Numer i tytuł>]]`
-     np.: `![[Rysunek 2 - Sięganie ponad konstrukcją ochronną.svg|ISO 13857 - Rysunek 2 – Sięganie ponad konstrukcją ochronną]]`
-     lub: `![[Tablica 4 - sięganie przez otwory o regularnym kształcie - od 14lat.svg|ISO 13857 - Tablica 4 – Sięganie przez otwory o regularnym kształcie – Osoby w wieku od 14 lat]]`
-   - **Zero Legend Duplication**: Gdy etykiety lub objaśnienia oznaczeń ($a, b, c$, $1, 2, 3$) znajdują się bezpośrednio na karcie rysunku/tabeli, **nie powielaj ich w tekście Markdown notatki**.
-   - **Format objaśnień w notatkach rysunków (`**Objaśnienia**`)**: Gdy legenda ($a, b, c$, $1, 2, 3$) nie mieści się na karcie SVG i musi znaleźć się w notatce pod embedem rysunku, należy ją bezwzględnie sformatować od pogrubionego nagłówka inline `**Objaśnienia**` (zakaz nagłówków Markdown `# ...` oraz kursywy `*...*`).
-   - **Korekta odwróconych barw skanów JBIG2**: W przypadku bezpośredniej ekstrakcji rycin 1-bitowych z plików PDF należy weryfikować mapowanie bitów – tło rysunku musi być w 100% czysto białe (`#ffffff`), a linie czarne (`#000000`). W razie odwrócenia barw należy zastosować inwersję rastra (`ImageOps.invert`).
-5. **PDF Vector Extraction First (When Source PDF Exists)**:
-   - If the vector source PDF of the standard is present in the folder, first attempt direct lossless vector extraction via `pdftocairo -svg -f <page> -l <page> "<norm.pdf>" "<out.svg>"`.
-6. **STOP & REVIEW Gate (Prezentacja porównawcza: Oryginalna grafika vs Końcowa grafika SVG)**:
-   - Zestawienie porównawcze publikuj jako dedykowany **artefakt markdown** (`review_<obiekt>.md`) z karuzelą oraz tabelą side-by-side, stosując bezwzględne ścieżki do plików graficznych skopiowanych do folderu artefaktów (`/C:/Users/.../obraz.png`). Zapobiega to błędom podglądu `preview unavailable`.
-   - **Kategoryczny zakaz prezentowania stanów pośrednich**: Użytkownika nie interesują wersje robocze, surowy kod HTML `<table>` ani tabele pośrednie — porównanie dotyczy wyłącznie ostatecznego wektora SVG z oryginalnym skanem.
-   - Zapytaj:
-     > *"Czy zatwierdzasz grafikę / tabelę SVG dla Rysunku / Tablicy X, czy wprowadzić poprawki?"*
-   - Zapisz docelowy plik w `Attachments/` i utrwal link w notatce dopiero po akceptacji użytkownika.
+     **Objaśnienia**
+     - a — ...
+     - b — ...
+     ```
+6. **`Stop & Review` Protocol (Original vs Final SVG Artifact Only)**:
+   - Present every reconstructed figure or table to the user for approval before final linking.
+   - **Dedicated Review Artifact (`review_<object>.md`)**: To prevent `preview unavailable` UI errors in Antigravity, always publish a dedicated Markdown artifact featuring a carousel and side-by-side comparison table using **full absolute file paths** (e.g., `/C:/Users/.../image.png`).
+   - **Strict Ban on Intermediate States**: Show **exclusively** the **Original Raster (Screenshot/Scan) vs Final Vector SVG**. Never display intermediate raw HTML code, draft tables, or uncompiled work-in-progress states.
 
 ---
 
 ## 6. Tag Taxonomy Policy (`tags_catalog.json`)
 
-1. **Catalog Adherence**:
-   - Both YAML `tags:` (without `#` prefix) and inline paragraph tags (`#Category/Subcategory`) must strictly match approved entries in `scripts/tags_catalog.json`.
-   - **Corrupted Prefix Warning**: Never use truncated tag artifacts present in legacy scans (such as `Safety/OcenaRyzyka/FunkcjaBezpiecze` or `Dyrektywy/OcenaZgodno`); always use the complete Polish word form (e.g., `Safety/OcenaRyzyka/FunkcjaBezpieczeństwa`, `Dyrektywy/OcenaZgodności`).
-2. **Approval Gate for New Tags**:
-   - Never invent or apply a new tag outside `tags_catalog.json` autonomously. Always ask first:
-     > *"Dla tego punktu proponuję dodanie nowego tagu `#Safety/...`. Czy wyrażasz zgodę?"*
+1. **Catalog Adherence**: Both YAML `tags:` (no `#`) and inline tags (`#Category/Subcategory`) must match approved entries in `scripts/tags_catalog.json` (use full Polish words, never legacy truncated prefixes).
+2. **Approval Gate**: Never invent a new tag autonomously. Always ask:
+   > *"Dla tego punktu proponuję dodanie nowego tagu `#Safety/...`. Czy wyrażasz zgodę?"*
 
 ---
 
 ## 7. Context Protection & Automation Runbook
 
-Never dump entire multi-page PDFs or read all files in a standard's folder manually into the LLM context. Always execute the local Python CLI tools in UTF-8 mode:
-
-1. **Step 1 — Audit Standard Status**:
-   ```powershell
-   python ".agents/skills/standards-transcriber/scripts/scan_norm.py" --norm "13849-1"
-   ```
-   Identifies total notes, completed texts/tables/SVGs, and the exact list of notes still containing raster screenshots.
-2. **Step 2 — Transcribe & Structure**:
-   Process pending notes one by one (or in small logical batches) following Sections 2–6.
-3. **Step 3 — Validate SVG Syntax & Visual Fidelity**:
-   ```powershell
-   python ".agents/skills/standards-transcriber/scripts/svg_generator.py" --validate "Path/To/Attachments/Rysunek_1.svg"
-   ```
-   Followed by multimodal visual comparison of the rendered SVG against the original screenshot.
-4. **Step 4 — Verify Note Integrity**:
-   ```powershell
-   python ".agents/skills/standards-transcriber/scripts/verify_transcription.py" --file "Path/To/Note.md"
-   ```
-   Ensure $0$ critical YAML/link errors and $0$ unreplaced screenshot warnings before reporting completion.
-5. **Step 5 — Git Stage & Selective Commit**:
-   ```powershell
-   git status --short
-   git diff --stat
-   ```
-   Stage only verified files and create an atomic Polish Conventional Commit.
+1. **Audit Status**: `python ".agents/skills/standards-transcriber/scripts/scan_norm.py" --norm "13849-1"`
+2. **Transcribe & Render**: Process notes in small batches following Sections 2–6.
+3. **Validate SVG**: `python ".agents/skills/standards-transcriber/scripts/svg_generator.py" --validate "Path/To/Attachments/File.svg"`
+4. **Verify Note Integrity**: `python ".agents/skills/standards-transcriber/scripts/verify_transcription.py" --file "Path/To/Note.md"`
+5. **Git Commit**: Inspect `git status --short` and `git diff --stat`, stage verified files, and commit in Polish.
 
 ---
 
 ## 8. Pre-Completion Quality Gate Checklist
-
-Before presenting any completed section or note to the user, verify:
-- [ ] **Data Truth ($100\%$ Verbatim)**: All text matches the scan word-for-word in the original language; zero paraphrasing, translations, or missing footnotes.
-- [ ] **Graphics Quality & Fidelity**:
-  - Drawings & miniatures have pure white background (`#ffffff`), 0% gray scanner noise, and 0% watermarks (PKN/WBY).
-  - High-DPI resolution (sharp on 4K and in PDF).
-  - Zero AI image generation hallucinations.
-  - Zero legend duplication under notes when already present inside drawing cards.
-- [ ] **XML / SVG Integrity**: Vector files pass `svg_generator.py --validate` with proper XML entity escaping (`&lt;`, `&gt;`, `&amp;`).
-- [ ] **YAML & `.base` Compliance**: Required properties (`norm_number`, `norm_point` / `norm_table` / `norm_drawing`, `norm_in_possesion`) are present and all wikilinks in YAML are enclosed in double quotes (`index: ["[[...]]"]`).
-- [ ] **Tag Consistency**: Every YAML and inline tag exists in `tags_catalog.json` (using full Polish words, never truncated prefixes).
+- [ ] **$100\%$ Verbatim Text**: Original language preserved; zero paraphrasing or missing footnotes; normative notes in `> [!warning] Uwaga`.
+- [ ] **No Duplicate Headings/Titles**: Zero `# ...` headings in table/drawing notes; zero figure titles inside `.svg` renders; explanations formatted with `**Objaśnienia**`.
+- [ ] **Single-Page Table & Clean Drawing SVGs**: Table SVGs have `Pages: 1` (`pageSet: False`) with `.table-card`/`.table-title` styling; drawings have `#ffffff` background, corrected JBIG2 polarity, and pass `Stop & Review` via `review_<object>.md`.
+- [ ] **YAML & Tags**: `cssclasses: [norma]` on content notes (`[wide]` on index note), quoted wikilinks in `index:` and `related:`, and $100\%$ valid tags from `tags_catalog.json`.

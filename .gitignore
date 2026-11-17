@@ -1,0 +1,8 @@
+﻿__pycache__/
+*.py[cod]
+*.class
+.gemini/
+*.log
+.env
+.DS_Store
+Thumbs.db
